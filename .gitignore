@@ -23,11 +23,12 @@
 hs_err_pid*
 
 # IntelliJ project files 
-*.iml
+#*.iml
 *.iws
 *.ipr
-*.fxml
+#*.fxml
 .idea/
+out/
 
 # NetBeans specific
 nbproject/private/
