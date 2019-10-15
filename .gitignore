@@ -26,6 +26,7 @@ hs_err_pid*
 *.iml
 *.iws
 *.ipr
+*.fxml
 .idea/
 
 # NetBeans specific
