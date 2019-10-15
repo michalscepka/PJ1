@@ -23,7 +23,7 @@ public class Calcul extends Application {
     }*/
     public void start(Stage primaryStage) {
         Group g = new Group();
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < 11; i++) {
             Button btn = new Button();
             btn.setText(Integer.toString(i));
             btn.setOnAction(new EventHandler<ActionEvent>() {
