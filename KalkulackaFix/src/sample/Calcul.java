@@ -63,7 +63,6 @@ public class Calcul extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     operationInput(btn.getText());
-                    //newInput(btn.getText());
                 }
             });
             g.add(btn, i, 2);
