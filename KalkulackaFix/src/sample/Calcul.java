@@ -3,36 +3,23 @@ package sample;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.VPos;
-import javafx.scene.Group;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Calcul extends Application {
 
     private Label label1 = new Label();
-    private String[] znaky = {"+", "-", "*", "/", "=", "C"};
+    //private String[] znaky = {"+", "-", "*", "/", "=", "C"};
+    private String[] znaky = {"+", "-", "*", "/"};
     private int znaky_pocet = znaky.length;
-    private double cislo1 = 0.0;
-    private double cislo2 = 0.0;
-    private double vysledek = 0.0;
-    private boolean prvni_cislo = true;
-    private boolean label_erase = false;
-    private String operand = "";
-    private String cislo1S = "";
-    private String cislo2S = "";
+    private List<String> operands = new ArrayList<>();
 
     @Override
     public void start(Stage primaryStage) {
@@ -49,7 +36,7 @@ public class Calcul extends Application {
             btn.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    newInput(btn.getText());
+                    numbersInput(btn.getText());
                 }
             });
             //g.getChildren().add(btn);
@@ -62,11 +49,31 @@ public class Calcul extends Application {
             btn.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    operationInput(btn.getText());
+                    operandsInput(btn.getText());
                 }
             });
             g.add(btn, i, 2);
         }
+
+        Button btn_eqv = new Button();
+        btn_eqv.setText("=");
+        btn_eqv.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                equalsInput(btn_eqv.getText());
+            }
+        });
+        g.add(btn_eqv, 4, 2);
+
+        Button btn_C = new Button();
+        btn_C.setText("C");
+        btn_C.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                cInput(btn_C.getText());
+            }
+        });
+        g.add(btn_C, 5, 2);
 
         Scene scene = new Scene(g, 600, 250);
 
@@ -79,81 +86,68 @@ public class Calcul extends Application {
         launch(args);
     }
 
-    private void newInput(String x) {
+    //TODO desetinnou tecku
+    //TODO smazani label1 kdyz se po kliknuti na "=" zmackne cislo misto znamenka
+
+    private void numbersInput(String x) {
         System.out.println("Key" + x + " was pressed");
 
-        if(label_erase) {
-            label1.setText(x.toString());
-            label_erase = false;
-        } else {
-            String label_text = label1.getText();
-            label1.setText(label_text + x.toString());
-        }
+        String label_text = label1.getText();
+        label1.setText(label_text + x.toString());
     }
 
-    private void operationInput(String x) {
-        System.out.println("Operation '" + x + "' was pressed");
+    private void operandsInput(String x) {
+        System.out.println("Key" + x + " was pressed");
 
-        if(!label1.getText().equals("")) {
-            if(cislo1S.equals("")) {
-                cislo1S = label1.getText();
-                System.out.println("cislo_1: " + cislo1S);
-            } else {
-                cislo2S = label1.getText();
-                System.out.println("cislo_2: " + cislo2S);
-            }
-        }
-
-        label_erase = true;
-        if(!x.equals("=")) {
-            operand = x;
-        }
-        System.out.println(operand);
-        System.out.println(cislo1S + " " + operand + " " + cislo2S + " = " + vysledek);
-
-        if(!cislo1S.equals("") && !cislo2S.equals("")) {
-            cislo1 = Double.parseDouble(cislo1S);
-            cislo2 = Double.parseDouble(cislo2S);
-
-            vypocitat();
-
-        }
-
-        System.out.println(cislo1S + " " + operand + " " + cislo2S + " = " + vysledek);
+        String label_text = label1.getText();
+        label1.setText(label_text + x.toString());
+        operands.add(x);
     }
 
     private void equalsInput(String x) {
+        String[] cislaS = label1.getText().split("\\+|-|\\*|/");
+        double[] cisla = new double[cislaS.length];
 
-    }
-
-    private void vypocitat() {
-        switch(operand) {
-            case "+":
-                vysledek = cislo1 + cislo2;
-                bordel();
-                break;
-            case "-":
-                vysledek = cislo1 - cislo2;
-                bordel();
-                break;
-            case "*":
-                vysledek = cislo1 * cislo2;
-                bordel();
-                break;
-            case "/":
-                vysledek = cislo1 / cislo2;
-                bordel();
-                break;
-            default:
-                break;
+        for(int i = 0; i < cisla.length; i++) {
+            System.out.println(cislaS[i]);
+            cisla[i] = Double.parseDouble(cislaS[i]);
         }
+        for(int i = 0; i < operands.size(); i++) {
+            System.out.println(operands.get(i));
+        }
+
+        double vysledek = cisla[0];
+        for(int i = 0; i < cisla.length - 1; i++) {
+            switch(operands.get(i)) {
+                case "+":
+                    vysledek += cisla[i + 1];
+                    label1.setText(Double.toString(vysledek));
+                    break;
+                case "-":
+                    vysledek -= cisla[i + 1];
+                    label1.setText(Double.toString(vysledek));
+                    break;
+                case "*":
+                    vysledek *= cisla[i + 1];
+                    label1.setText(Double.toString(vysledek));
+                    break;
+                case "/":
+                    vysledek /= cisla[i + 1];
+                    label1.setText(Double.toString(vysledek));
+                    break;
+                default:
+                    break;
+            }
+        }
+        operands.clear();
     }
 
-    private void bordel() {
-        label1.setText(Double.toString(vysledek));
-        cislo1 = vysledek;
-        cislo1S = Double.toString(vysledek);
-        cislo2S = "";
-        System.out.println("vysledek: " + Double.toString(vysledek));
+    private void cInput(String x) {
+        clear();
+    }
+
+    private void clear() {
+        label1.setText("");
+        operands.clear();
     }
 }
