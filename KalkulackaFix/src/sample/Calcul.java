@@ -20,6 +20,7 @@ public class Calcul extends Application {
     private String[] znaky = {"+", "-", "*", "/"};
     private int znaky_pocet = znaky.length;
     private List<String> operands = new ArrayList<>();
+    private boolean can_clear_label = false;
 
     @Override
     public void start(Stage primaryStage) {
@@ -75,6 +76,16 @@ public class Calcul extends Application {
         });
         g.add(btn_C, 5, 2);
 
+        Button btn_dot = new Button();
+        btn_dot.setText(".");
+        btn_dot.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                numbersInput(btn_dot.getText());
+            }
+        });
+        g.add(btn_dot, 6, 2);
+
         Scene scene = new Scene(g, 600, 250);
 
         primaryStage.setTitle("Super kalkulator");
@@ -86,14 +97,18 @@ public class Calcul extends Application {
         launch(args);
     }
 
-    //TODO desetinnou tecku
-    //TODO smazani label1 kdyz se po kliknuti na "=" zmackne cislo misto znamenka
-
     private void numbersInput(String x) {
         System.out.println("Key" + x + " was pressed");
 
-        String label_text = label1.getText();
-        label1.setText(label_text + x.toString());
+        if(can_clear_label) {
+            label1.setText(x.toString());
+            can_clear_label = false;
+        }
+        else {
+            String label_text = label1.getText();
+            label1.setText(label_text + x.toString());
+        }
+
     }
 
     private void operandsInput(String x) {
@@ -102,6 +117,7 @@ public class Calcul extends Application {
         String label_text = label1.getText();
         label1.setText(label_text + x.toString());
         operands.add(x);
+        can_clear_label = false;
     }
 
     private void equalsInput(String x) {
@@ -140,6 +156,7 @@ public class Calcul extends Application {
             }
         }
         operands.clear();
+        can_clear_label = true;
     }
 
     private void cInput(String x) {
