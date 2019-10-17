@@ -1,3 +1,5 @@
+*.pptx
+
 # Compiled class file
 *.class
 
@@ -38,3 +40,6 @@ dist/
 nbdist/
 nbactions.xml
 nb-configuration.xml
+/JavaApplication3/nbproject/private/
+/FiveInArowFix/nbproject/private/
+/FiveInARow/nbproject/private/
