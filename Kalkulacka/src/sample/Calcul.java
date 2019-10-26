@@ -107,7 +107,6 @@ public class Calcul extends Application {
             String label_text = label1.getText();
             label1.setText(label_text + x.toString());
         }
-
     }
 
     private void operandsInput(String x) {

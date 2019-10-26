@@ -1,4 +1,5 @@
 *.pptx
+videa/
 
 # Compiled class file
 *.class
@@ -43,3 +44,4 @@ nb-configuration.xml
 /JavaApplication3/nbproject/private/
 /FiveInArowFix/nbproject/private/
 /FiveInARow/nbproject/private/
+/Minesweeper/nbproject/private/
