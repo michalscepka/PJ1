@@ -1,16 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package minesweeperfx.board;
 
+import java.util.LinkedList;
 import java.util.Random;
 
-/**
- *
- * @author Michal
- */
 public class Board {
     private final int size;
     private int mineBoard[][];
@@ -21,7 +13,15 @@ public class Board {
         mineBoard = new int[size][size];
         userBoard = new Mark[size][size];
     }
-    
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getNumber(int x, int y) {
+        return mineBoard[x][y];
+    }
+
     public void initializeBoard(int minesNumber) {
         Random random = new Random();
         for (int i = 0; i < minesNumber; i++) {
@@ -35,25 +35,32 @@ public class Board {
         countSurroundings();
     }
     
-    public void makeMove(int x, int y) {
+    public void makeMove(int x, int y, LinkedList<Field> list) {
         if(x < 0 || y < 0 || x >= size || y >= size)
             return;
         if(userBoard[x][y] != null)
             return;
+
+        if(list == null)
+            list = new LinkedList<>();
+
         if(mineBoard[x][y] == -1) {
             userBoard[x][y] = Mark.MINE;
+            list.add(new Field(x, y, Mark.MINE));
         } else if(mineBoard[x][y] == 0) {
             userBoard[x][y] = Mark.EMPTY;
-            makeMove(x + 1, y - 1);
-            makeMove(x + 1, y);
-            makeMove(x + 1, y + 1);
-            makeMove(x, y + 1);
-            makeMove(x, y - 1);
-            makeMove(x - 1, y - 1);
-            makeMove(x - 1, y);
-            makeMove(x - 1, y + 1);
+            list.add(new Field(x, y, Mark.EMPTY));
+            makeMove(x + 1, y - 1, list);
+            makeMove(x + 1, y, list);
+            makeMove(x + 1, y + 1, list);
+            makeMove(x, y + 1, list);
+            makeMove(x, y - 1, list);
+            makeMove(x - 1, y - 1, list);
+            makeMove(x - 1, y, list);
+            makeMove(x - 1, y + 1, list);
         } else {
             userBoard[x][y] = Mark.NUMBER;
+            list.add(new Field(x, y, Mark.NUMBER));
         }
     }
     
