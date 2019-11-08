@@ -23,8 +23,33 @@ public class Person {
         StringBuilder sb = new StringBuilder();
         sb.append(getName());
         for(int i = 0; i < times.size(); i++) {
-            sb.append(" " + times.get(i).getHours() + ":" + times.get(i).getMinutes() + ":" + times.get(i).getSeconds());
+            sb.append(" " + times.get(i).toString());
         }
         return sb.toString();
+    }
+
+    public Time getBestTime() {
+        Time best_time = new Time(times.get(0).getHours(), times.get(0).getMinutes(), times.get(0).getSeconds());
+
+        for(int i = 1; i < times.size(); i++) {
+            if(best_time.getHours() > times.get(i).getHours()) {
+                best_time.setHours(times.get(i).getHours());
+                best_time.setMinutes(times.get(i).getMinutes());
+                best_time.setSeconds(times.get(i).getSeconds());
+            }
+            else if((best_time.getHours() == times.get(i).getHours()) && (best_time.getMinutes() > times.get(i).getMinutes())) {
+                best_time.setHours(times.get(i).getHours());
+                best_time.setMinutes(times.get(i).getMinutes());
+                best_time.setSeconds(times.get(i).getSeconds());
+            }
+            else if((best_time.getHours() == times.get(i).getHours()) &&
+                    (best_time.getMinutes() == times.get(i).getMinutes()) &&
+                    (best_time.getSeconds() > times.get(i).getSeconds())) {
+                best_time.setHours(times.get(i).getHours());
+                best_time.setMinutes(times.get(i).getMinutes());
+                best_time.setSeconds(times.get(i).getSeconds());
+            }
+        }
+        return best_time;
     }
 }

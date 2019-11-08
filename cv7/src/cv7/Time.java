@@ -34,4 +34,9 @@ public class Time {
     public void setSeconds(int seconds) {
         this.seconds = seconds;
     }
+
+    @Override
+    public String toString() {
+        return getHours() + ":" + getMinutes() + ":" + getSeconds();
+    }
 }

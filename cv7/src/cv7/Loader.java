@@ -21,7 +21,7 @@ public class Loader {
             String line = reader.readLine();
 
             while(line != null) {
-                String[] items = line.split("[ :]");
+                String[] items = line.split("[ :,]");
                 LinkedList<Time> times = new LinkedList<>();
 
                 for(int i = 2; i < items.length; i += 3) {
@@ -46,5 +46,9 @@ public class Loader {
             s.append(persons.get(i).toString()).append("\n");
         }
         return s.toString();
+    }
+
+    public ArrayList<Person> getPersons() {
+        return persons;
     }
 }

@@ -1,15 +1,23 @@
 package cv7;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        Loader l1 = new Loader();
-        //System.out.println(l1.load("persons.txt").toString());
-        l1.load("persons.txt");
-        System.out.println(l1.toString());
+        Loader loader = new Loader();
+        loader.load("persons.txt");
+        System.out.println(loader.toString());
+
+        ArrayList<Person> persons = loader.getPersons();
+        FileWriter writer = new FileWriter("best_times.txt");
+        for(int i = 0; i < persons.size(); i++) {
+            writer.write(persons.get(i).getName() + " " + persons.get(i).getBestTime() + System.lineSeparator());
+        }
+        writer.close();
 
         /*FileInputStream in = null;
         FileOutputStream out = null;
