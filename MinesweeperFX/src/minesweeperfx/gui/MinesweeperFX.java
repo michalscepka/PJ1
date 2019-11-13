@@ -9,9 +9,9 @@ import minesweeperfx.board.Board;
 public class MinesweeperFX extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        Board board = new Board(10);
-        board.initializeBoard(10);
+    public void start(Stage primaryStage) {
+        Board board = new Board(10, 10);
+        //board.initializeBoard();
         BoardCanvas canvas = new BoardCanvas(board, 500, 500);
         canvas.printBoard();
 

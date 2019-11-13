@@ -5,13 +5,15 @@ import java.util.Random;
 
 public class Board {
     private final int size;
-    private int mineBoard[][];
-    private Mark userBoard[][];
+    private int[][] mineBoard;
+    private Mark[][] userBoard;
+    private final int minesNumber;
 
-    public Board(int size) {
+    public Board(int size, int minesNumber) {
         this.size = size;
         mineBoard = new int[size][size];
         userBoard = new Mark[size][size];
+        this.minesNumber = minesNumber;
     }
 
     public int getSize() {
@@ -22,19 +24,20 @@ public class Board {
         return mineBoard[x][y];
     }
 
-    public void initializeBoard(int minesNumber) {
+    public void initializeBoard(int mouseX, int mouseY) {
+        System.out.println("Board init");
         Random random = new Random();
         for (int i = 0; i < minesNumber; i++) {
             int x, y;
-            do {                
+            do {
                 x = random.nextInt(size);
                 y = random.nextInt(size);
-            } while (mineBoard[x][y] == -1);
+            } while (mineBoard[x][y] == -1 || (x == mouseX && y == mouseY));
             mineBoard[x][y] = -1;
         }
         countSurroundings();
     }
-    
+
     public void makeMove(int x, int y, LinkedList<Field> list) {
         if(x < 0 || y < 0 || x >= size || y >= size)
             return;
@@ -47,6 +50,7 @@ public class Board {
         if(mineBoard[x][y] == -1) {
             userBoard[x][y] = Mark.MINE;
             list.add(new Field(x, y, Mark.MINE));
+            //System.out.println("Game over");
         } else if(mineBoard[x][y] == 0) {
             userBoard[x][y] = Mark.EMPTY;
             list.add(new Field(x, y, Mark.EMPTY));
@@ -77,7 +81,7 @@ public class Board {
                             mineBoard[i][j]++;
                         }
                     }
-                    catch(Exception e) {}
+                    catch(Exception ignored) {}
                 }
             }
         }

@@ -16,6 +16,7 @@ public class BoardCanvas extends Canvas {
     private Board board;
     private final double widthTick;
     private final double heightTick;
+    private boolean isFirstMove;
 
     public BoardCanvas(Board board, double width, double height) {
         super(width, height);
@@ -31,6 +32,7 @@ public class BoardCanvas extends Canvas {
                 placeFlag(x, y);
             }
         });
+        isFirstMove = true;
     }
 
     public void printBoard() {
@@ -48,10 +50,15 @@ public class BoardCanvas extends Canvas {
 
     private void makeMove(int x, int y) {
         LinkedList<Field> list = new LinkedList<>();
+        if(isFirstMove) {
+            board.initializeBoard(x, y);
+            isFirstMove = false;
+        }
         board.makeMove(x, y, list);
         GraphicsContext gc = getGraphicsContext2D();
         for(Field f : list) {
             if(f.getMark() == Mark.MINE) {
+                System.out.println("Game over");
                 gc.setFill(Color.ORANGERED);
                 gc.fillRect(x * widthTick + 1, y * heightTick + 1, widthTick - 2, heightTick - 2);
                 gc.setFill(Color.BLACK);
