@@ -5,8 +5,8 @@ import java.util.Random;
 
 public class Board {
     private final int size;
-    private int mineBoard[][];
-    private Mark userBoard[][];
+    private int[][] mineBoard;
+    private Mark[][] userBoard;
 
     public Board(int size) {
         this.size = size;
@@ -77,7 +77,7 @@ public class Board {
                             mineBoard[i][j]++;
                         }
                     }
-                    catch(Exception e) {}
+                    catch(Exception ignored) {}
                 }
             }
         }
