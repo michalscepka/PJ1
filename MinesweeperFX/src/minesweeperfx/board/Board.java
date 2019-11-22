@@ -5,15 +5,13 @@ import java.util.Random;
 
 public class Board {
     private final int size;
-    private int[][] mineBoard;
-    private Mark[][] userBoard;
-    private final int minesNumber;
+    private int mineBoard[][];
+    private Mark userBoard[][];
 
-    public Board(int size, int minesNumber) {
+    public Board(int size) {
         this.size = size;
         mineBoard = new int[size][size];
         userBoard = new Mark[size][size];
-        this.minesNumber = minesNumber;
     }
 
     public int getSize() {
@@ -24,15 +22,14 @@ public class Board {
         return mineBoard[x][y];
     }
 
-    public void initializeBoard(int mouseX, int mouseY) {
-        System.out.println("Board init");
+    public void initializeBoard(int minesNumber) {
         Random random = new Random();
         for (int i = 0; i < minesNumber; i++) {
             int x, y;
             do {
                 x = random.nextInt(size);
                 y = random.nextInt(size);
-            } while (mineBoard[x][y] == -1 || (x == mouseX && y == mouseY));
+            } while (mineBoard[x][y] == -1);
             mineBoard[x][y] = -1;
         }
         countSurroundings();
@@ -50,7 +47,6 @@ public class Board {
         if(mineBoard[x][y] == -1) {
             userBoard[x][y] = Mark.MINE;
             list.add(new Field(x, y, Mark.MINE));
-            //System.out.println("Game over");
         } else if(mineBoard[x][y] == 0) {
             userBoard[x][y] = Mark.EMPTY;
             list.add(new Field(x, y, Mark.EMPTY));
@@ -67,7 +63,7 @@ public class Board {
             list.add(new Field(x, y, Mark.NUMBER));
         }
     }
-    
+
     private void countSurroundings() {
         int[][] surroundings = { {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1} };
         for (int i = 0; i < size; i++) {
@@ -81,12 +77,12 @@ public class Board {
                             mineBoard[i][j]++;
                         }
                     }
-                    catch(Exception ignored) {}
+                    catch(Exception e) {}
                 }
             }
         }
     }
-    
+
     public boolean placeFlag(int x, int y) {
         if (userBoard[x][y] == Mark.FLAG) {
             userBoard[x][y] = null;
