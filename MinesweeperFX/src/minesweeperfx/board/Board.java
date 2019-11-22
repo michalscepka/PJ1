@@ -7,11 +7,13 @@ public class Board {
     private final int size;
     private int[][] mineBoard;
     private Mark[][] userBoard;
+    private int minesNumber;
 
-    public Board(int size) {
+    public Board(int size, int mines) {
         this.size = size;
         mineBoard = new int[size][size];
         userBoard = new Mark[size][size];
+        minesNumber = mines;
     }
 
     public int getSize() {
@@ -22,7 +24,11 @@ public class Board {
         return mineBoard[x][y];
     }
 
-    public void initializeBoard(int minesNumber) {
+    public int getMinesNumber() {
+        return minesNumber;
+    }
+
+    public void initializeBoard() {
         Random random = new Random();
         for (int i = 0; i < minesNumber; i++) {
             int x, y;
