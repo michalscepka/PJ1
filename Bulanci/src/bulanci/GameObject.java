@@ -1,5 +1,6 @@
 package bulanci;
 
+import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Rectangle2D;
@@ -7,27 +8,24 @@ import javafx.geometry.Rectangle2D;
 public class GameObject {
 
     private Image image;
-
-    //TODO prepsat position a velocity na point2D
-    private double positionX;
-    private double positionY;
-    private double velocityX;
-    private double velocityY;
+    private Point2D position;
+    private Point2D velocity;
     private double width;
     private double height;
 
     public GameObject() {
-        positionX = 0;
-        positionY = 0;
-        velocityX = 0;
-        velocityY = 0;
+        position = new Point2D(0, 0);
+        velocity = new Point2D(0, 0);
+    }
+
+    public GameObject(double positionX, double positionY, double velocityX, double velocityY) {
+        position = new Point2D(positionX, positionY);
+        velocity = new Point2D(velocityX, velocityY);
     }
 
     public GameObject(String filename, double positionX, double positionY, double velocityX, double velocityY) {
-        this.positionX = positionX;
-        this.positionY = positionY;
-        this.velocityX = velocityX;
-        this.velocityY = velocityY;
+        position = new Point2D(positionX, positionY);
+        velocity = new Point2D(velocityX, velocityY);
         setImage(filename);
     }
 
@@ -41,48 +39,44 @@ public class GameObject {
         setImage(new Image(filename));
     }
 
-    public double getPositionX() {
-        return positionX;
+    public Point2D getPosition() {
+        return position;
     }
 
-    public double getPositionY() {
-        return positionY;
+    public Point2D getVelocity() {
+        return velocity;
     }
 
-    public double getVelocityX() {
-        return velocityX;
+    public double getWidth() {
+        return width;
     }
 
-    public double getVelocityY() {
-        return velocityY;
+    public double getHeight() {
+        return height;
     }
 
     public void setPosition(double x, double y) {
-        positionX = x;
-        positionY = y;
+        this.position = new Point2D(x, y);
     }
 
     public void setVelocity(double x, double y) {
-        velocityX = x;
-        velocityY = y;
+        this.velocity = new Point2D(x, y);
     }
 
     public void addVelocity(double x, double y) {
-        velocityX += x;
-        velocityY += y;
+        velocity = velocity.add(x, y);
     }
 
     public void update(double time) {
-        positionX += velocityX * time;
-        positionY += velocityY * time;
+        position = position.add(velocity.getX() * time, velocity.getY() * time);
     }
 
     public void render(GraphicsContext gc) {
-        gc.drawImage(image, positionX, positionY);
+        gc.drawImage(image, position.getX(), position.getY());
     }
 
     public Rectangle2D getBoundary() {
-        return new Rectangle2D(positionX, positionY, width, height);
+        return new Rectangle2D(position.getX(), position.getY(), width, height);
     }
 
     public boolean intersects(GameObject other) {
@@ -91,7 +85,7 @@ public class GameObject {
 
     @Override
     public String toString() {
-        return " Position: [" + positionX + "," + positionY + "]"
-                + " Velocity: [" + velocityX + "," + velocityY + "]";
+        return "pos[" + position.getX() + ", " + position.getY() + "]"
+                + " vel[" + velocity.getX() + ", " + velocity.getY() + "]";
     }
 }

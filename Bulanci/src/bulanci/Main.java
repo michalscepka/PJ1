@@ -10,98 +10,116 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Main extends Application {
 
-    private Pane root;
     private Player player1;
-    private GraphicsContext gc;
-    private ArrayList<Bullet> bullets = new ArrayList<>();
+    private Player player2;
     private int mapWidth = 800;
     private int mapHeight = 600;
+    private long lastNanoTime;
 
     @Override
     public void start(Stage primaryStage) {
-        root = new Pane();
 
+        Pane root = new Pane();
         primaryStage.setTitle("Bulanci");
         Scene scene = new Scene(root, mapWidth, mapHeight);
         primaryStage.setScene(scene);
-
         Canvas canvas = new Canvas(mapWidth, mapHeight);
         root.getChildren().add(canvas);
-
-        gc = canvas.getGraphicsContext2D();
+        GraphicsContext gc = canvas.getGraphicsContext2D();
 
         ArrayList<String> input = new ArrayList<>();
 
         scene.setOnKeyPressed(e -> {
             String code = e.getCode().toString();
             if (e.getCode() == KeyCode.SPACE) {
-                System.out.println("shoot");
-                bullets.add(new Bullet("bullet.png", player1.getPositionX(), player1.getPositionY(), player1.getVelocityX() * 2, player1.getVelocityY() * 2));
+                player1.getActiveGun().shoot();
+            } else if (e.getCode() == KeyCode.CONTROL) {
+                player2.getActiveGun().shoot();
             } else if (!input.contains(code)) {
-                input.add( code );
+                input.add(code);
             }
         });
 
         scene.setOnKeyReleased(e -> {
             String code = e.getCode().toString();
-            input.remove( code );
+            input.remove(code);
         });
 
-        player1 = new Player();
-        player1.setImage("player-down.png");
+        player1 = new Player("hrac1");
+        player1.setImage("sprites/player_right.png");
         player1.setPosition((double)mapWidth / 2.0, (double)mapHeight / 2.0);
+        player1.addGun(new Gun(
+                "sprites/gun-right.png", "Pistol", player1, player1.getPosition().getX() + player1.getWidth(), player1.getPosition().getY() + 10,
+                player1.getVelocity().getX(), player1.getVelocity().getY()));
+        System.out.println(player1.toString());
 
-        final long[] lastNanoTime = {System.nanoTime()};
+        player2 = new Player("hrac2");
+        player2.setImage("sprites/player_right.png");
+        player2.setPosition((double)mapWidth / 3.0, (double)mapHeight / 2.0);
+        player2.addGun(new Gun(
+                "sprites/gun-right.png", "Pistol", player2, player2.getPosition().getX() + player2.getWidth(), player2.getPosition().getY() + 10,
+                player2.getVelocity().getX(), player2.getVelocity().getY()));
+        System.out.println(player2.toString());
+
+        lastNanoTime = System.nanoTime();
 
         new AnimationTimer() {
             @Override
             public void handle(long currentNanoTime) {
 
-                double elapsedTime = (currentNanoTime - lastNanoTime[0]) / 1000000000.0;
-                lastNanoTime[0] = currentNanoTime;
+                double elapsedTime = (currentNanoTime - lastNanoTime) / 1000000000.0;
+                lastNanoTime = currentNanoTime;
 
-                //TODO naplnit obrazky do pole
+                //movement
                 player1.setVelocity(0, 0);
-                if (input.contains("UP")) {
-                    player1.addVelocity(0, -100);
-                    player1.setImage("player-up.png");
-                }
-                if (input.contains("DOWN")) {
-                    player1.addVelocity(0, 100);
-                    player1.setImage("player-down.png");
-                }
-                if (input.contains("LEFT")) {
-                    player1.addVelocity(-100, 0);
-                    player1.setImage("player-left.png");
-                }
-                if (input.contains("RIGHT")) {
-                    player1.addVelocity(100, 0);
-                    player1.setImage("player-right.png");
+                player1.getActiveGun().setVelocity(0, 0);
+                if(!input.isEmpty()) {
+                    if (input.get(input.size() - 1).equals("UP"))
+                        player1.moveUp();
+                    if (input.get(input.size() - 1).equals("DOWN"))
+                        player1.moveDown();
+                    if (input.get(input.size() - 1).equals("RIGHT"))
+                        player1.moveRight();
+                    if (input.get(input.size() - 1).equals("LEFT"))
+                        player1.moveLeft();
                 }
 
-                player1.update(elapsedTime);
-                for (Bullet bullet : bullets) {
-                    bullet.update(elapsedTime);
+                player2.setVelocity(0, 0);
+                player2.getActiveGun().setVelocity(0, 0);
+                if(!input.isEmpty()) {
+                    if (input.get(input.size() - 1).equals("W"))
+                        player2.moveUp();
+                    if (input.get(input.size() - 1).equals("S"))
+                        player2.moveDown();
+                    if (input.get(input.size() - 1).equals("D"))
+                        player2.moveRight();
+                    if (input.get(input.size() - 1).equals("A"))
+                        player2.moveLeft();
                 }
 
-                /*Iterator<GameObject> moneybagIter = moneybagList.iterator();
-                while (moneybagIter.hasNext()) {
-                    GameObject moneybag = moneybagIter.next();
-                    if (player1.intersects(moneybag)) {
-                        moneybagIter.remove();
-                        //score.value++;
+                //TODO collision detection
+                Iterator<Bullet> bulletsInter = player1.getActiveGun().getBullets().iterator();
+                while (bulletsInter.hasNext()) {
+                    Bullet bullet = bulletsInter.next();
+                    System.out.println("ff");
+                    if (player1.intersects(bullet)) {
+                        bulletsInter.remove();
+                        System.out.println("kkkkkkkkkkkkkkkk");
                     }
-                }*/
+                }
 
-                // render
+                //update
+                player1.update(elapsedTime);
+                player2.update(elapsedTime);
+
+                //render
                 gc.clearRect(0, 0, mapWidth, mapHeight);
                 player1.render(gc);
-                for (Bullet bullet : bullets) {
-                    bullet.render(gc);
-                }
+                player2.render(gc);
             }
         }.start();
 

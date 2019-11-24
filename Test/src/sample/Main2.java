@@ -19,6 +19,9 @@ import java.util.Iterator;
 // Collect the Money Bags!
 public class Main2 extends Application
 {
+    private long lastNanoTime;
+    private int score;
+
     public static void main(String[] args)
     {
         launch(args);
@@ -75,17 +78,17 @@ public class Main2 extends Application
             moneybagList.add( moneybag );
         }
 
-        final long[] lastNanoTime = {System.nanoTime()};
+        lastNanoTime = System.nanoTime();
 
-        final int[] score = {0};
+        score = 0;
 
         new AnimationTimer()
         {
             public void handle(long currentNanoTime)
             {
                 // calculate time since last update.
-                double elapsedTime = (currentNanoTime - lastNanoTime[0]) / 1000000000.0;
-                lastNanoTime[0] = currentNanoTime;
+                double elapsedTime = (currentNanoTime - lastNanoTime) / 1000000000.0;
+                lastNanoTime = currentNanoTime;
 
                 // game logic
 
@@ -110,7 +113,7 @@ public class Main2 extends Application
                     if ( briefcase.intersects(moneybag) )
                     {
                         moneybagIter.remove();
-                        score[0]++;
+                        score++;
                     }
                 }
 
@@ -122,7 +125,7 @@ public class Main2 extends Application
                 for (Sprite moneybag : moneybagList )
                     moneybag.render( gc );
 
-                String pointsText = "Cash: $" + (100 * score[0]);
+                String pointsText = "Cash: $" + (100 * score);
                 gc.fillText( pointsText, 360, 36 );
                 gc.strokeText( pointsText, 360, 36 );
             }

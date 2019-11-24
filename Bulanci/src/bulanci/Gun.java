@@ -1,0 +1,68 @@
+package bulanci;
+
+import javafx.scene.canvas.GraphicsContext;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+public class Gun extends GameObject {
+
+    private String name;
+    private ArrayList<Bullet> bullets = new ArrayList<>();
+    private Player player;
+
+    public Gun(String filename, String name, Player player, double positionX, double positionY, double velocityX, double velocityY) {
+        super(filename, positionX, positionY, velocityX, velocityY);
+        this.name = name;
+        this.player = player;
+    }
+
+    public ArrayList<Bullet> getBullets() {
+        return bullets;
+    }
+
+    public void shoot() {
+        switch (player.getDirection()) {
+            case "UP":
+                bullets.add(new Bullet(getPosition().getX(), getPosition().getY() - 10, 0, player.getSpeed() * -5));
+                break;
+            case "DOWN":
+                bullets.add(new Bullet(getPosition().getX(), getPosition().getY() + getHeight(), 0, player.getSpeed() * 5));
+                break;
+            case "RIGHT":
+                bullets.add(new Bullet(getPosition().getX() + getWidth(), getPosition().getY(), player.getSpeed() * 5, 0));
+                break;
+            case "LEFT":
+                bullets.add(new Bullet(getPosition().getX() - 10, getPosition().getY(), player.getSpeed() * -5, 0));
+                break;
+        }
+    }
+
+    @Override
+    public void update(double time) {
+        super.update(time);
+
+        Iterator<Bullet> bulletIterator = bullets.iterator();
+        while (bulletIterator.hasNext()) {
+            Bullet bullet = bulletIterator.next();
+            if (bullet.isOutOfBounds()) {
+                bulletIterator.remove();
+            } else {
+                bullet.update(time);
+            }
+        }
+    }
+
+    @Override
+    public void render(GraphicsContext gc) {
+        super.render(gc);
+        if(!bullets.isEmpty())
+            for(Bullet bullet : bullets)
+                bullet.render(gc);
+    }
+
+    @Override
+    public String toString() {
+        return name + ": " + super.toString();
+    }
+}
