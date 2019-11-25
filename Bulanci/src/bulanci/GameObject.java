@@ -5,17 +5,29 @@ import javafx.scene.image.Image;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Rectangle2D;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+
 public class GameObject {
 
     private Image image;
+    private ArrayList<Image> images;
     private Point2D position;
     private Point2D velocity;
     private double width;
     private double height;
+    private String name = "GameObject";
+    private DecimalFormat numberFormat = new DecimalFormat("#0.00");
 
-    public GameObject() {
+    public GameObject(GameMap map) {
         position = new Point2D(0, 0);
         velocity = new Point2D(0, 0);
+    }
+
+    public GameObject(String name) {
+        position = new Point2D(0, 0);
+        velocity = new Point2D(0, 0);
+        this.name = name;
     }
 
     public GameObject(double positionX, double positionY, double velocityX, double velocityY) {
@@ -29,6 +41,13 @@ public class GameObject {
         setImage(filename);
     }
 
+    public GameObject(String filename, String name, double positionX, double positionY, double velocityX, double velocityY) {
+        position = new Point2D(positionX, positionY);
+        velocity = new Point2D(velocityX, velocityY);
+        setImage(filename);
+        this.name = name;
+    }
+
     public void setImage(Image image) {
         this.image = image;
         width = image.getWidth();
@@ -37,6 +56,18 @@ public class GameObject {
 
     public void setImage(String filename) {
         setImage(new Image(filename));
+    }
+
+    public void setImages(ArrayList<Image> images) {
+        this.images = images;
+    }
+
+    public Image getImage(int index) {
+        return images.get(index);
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Point2D getPosition() {
@@ -85,7 +116,7 @@ public class GameObject {
 
     @Override
     public String toString() {
-        return "pos[" + position.getX() + ", " + position.getY() + "]"
-                + " vel[" + velocity.getX() + ", " + velocity.getY() + "]";
+        return getName() + ": pos[" + numberFormat.format(position.getX()) + ", " + numberFormat.format(position.getY()) + "]"
+                + ", vel[" + numberFormat.format(velocity.getX()) + ", " + numberFormat.format(velocity.getY()) + "]";
     }
 }

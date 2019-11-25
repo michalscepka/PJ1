@@ -4,20 +4,23 @@ import javafx.scene.canvas.GraphicsContext;
 
 import java.util.ArrayList;
 
-public class Player extends GameObject {
+public abstract class Player extends GameObject {
 
-    private String name;
     private ArrayList<Gun> guns = new ArrayList<>();
     private int gunIndex;
     private int speed;
-    private String direction;
+    //up    down    left    right
+    //0     1       2       3
+    private int direction;
+    //mozna dat mapu do GameObject
+    private GameMap map;
 
-    public Player(String name) {
-        super();
-        this.name = name;
+    public Player(String name, GameMap map, int direction) {
+        super(name);
         gunIndex = 0;
-        speed = 125;
-        direction = "RIGHT";
+        speed = 200;
+        this.direction = direction;
+        this.map = map;
     }
 
     public void addGun(Gun gun) {
@@ -28,8 +31,12 @@ public class Player extends GameObject {
         return guns.get(gunIndex);
     }
 
-    public String getDirection() {
+    public int getDirection() {
         return direction;
+    }
+
+    public void setDirection(int direction) {
+        this.direction = direction;
     }
 
     public int getSpeed() {
@@ -37,39 +44,77 @@ public class Player extends GameObject {
     }
 
     public void moveUp() {
-        addVelocity(0, -speed);
-        setImage("sprites/player_up.png");
-        getActiveGun().setImage("sprites/gun-up.png");
-        getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
-        getActiveGun().setPosition(getPosition().getX() + 10, getPosition().getY() - getActiveGun().getHeight());
-        direction = "UP";
+        if(!isOutOnTop()) {
+            addVelocity(0, -speed);
+            if(direction != 0) {
+                direction = 0;
+                setImage(getImage(direction));
+                getActiveGun().setImage("sprites/gun-up.png");
+            }
+            getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
+            getActiveGun().setPosition(getPosition().getX() + 10, getPosition().getY() - getActiveGun().getHeight());
+        }
     }
 
     public void moveDown() {
-        addVelocity(0, speed);
-        setImage("sprites/player_down.png");
-        getActiveGun().setImage("sprites/gun-down.png");
-        getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
-        getActiveGun().setPosition(getPosition().getX() + getWidth() - 10 * 2, getPosition().getY() + getHeight());
-        direction = "DOWN";
-    }
-
-    public void moveRight() {
-        addVelocity(speed, 0);
-        setImage("sprites/player_right.png");
-        getActiveGun().setImage("sprites/gun-right.png");
-        getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
-        getActiveGun().setPosition(getPosition().getX() + getWidth(), getPosition().getY() + 10);
-        direction = "RIGHT";
+        if(!isOutOnBot()) {
+            addVelocity(0, speed);
+            if(direction != 1) {
+                direction = 1;
+                setImage(getImage(direction));
+                getActiveGun().setImage("sprites/gun-down.png");
+            }
+            getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
+            getActiveGun().setPosition(getPosition().getX() + getWidth() - 10 * 2, getPosition().getY() + getHeight());
+        }
     }
 
     public void moveLeft() {
-        addVelocity(-speed, 0);
-        setImage("sprites/player_left.png");
-        getActiveGun().setImage("sprites/gun-left.png");
-        getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
-        getActiveGun().setPosition(getPosition().getX() - getActiveGun().getWidth(), getPosition().getY() + getHeight() - 10 * 2);
-        direction = "LEFT";
+        if(!isOutOnLeft()) {
+            addVelocity(-speed, 0);
+            if(direction != 2) {
+                direction = 2;
+                setImage(getImage(direction));
+                getActiveGun().setImage("sprites/gun-left.png");
+            }
+            getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
+            getActiveGun().setPosition(getPosition().getX() - getActiveGun().getWidth(), getPosition().getY() + getHeight() - 10 * 2);
+        }
+    }
+
+    public void moveRight() {
+        if(!isOutOnRight()) {
+            addVelocity(speed, 0);
+            if(direction != 3) {
+                direction = 3;
+                setImage(getImage(direction));
+                getActiveGun().setImage("sprites/gun-right.png");
+            }
+            getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
+            getActiveGun().setPosition(getPosition().getX() + getWidth(), getPosition().getY() + 10);
+        }
+    }
+
+    public boolean isOutOnTop() {
+        return getPosition().getY() < 0;
+    }
+
+    public boolean isOutOnBot() {
+        return getPosition().getY() > map.getHeight() - getHeight();
+    }
+
+    public boolean isOutOnLeft() {
+        return getPosition().getX() < 0;
+    }
+
+    public boolean isOutOnRight() {
+        return getPosition().getX() > map.getWidth() - getWidth();
+    }
+
+    @Override
+    public void setVelocity(double x, double y) {
+        super.setVelocity(x, y);
+        getActiveGun().setVelocity(x, y);
     }
 
     @Override
@@ -87,10 +132,11 @@ public class Player extends GameObject {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(name).append(": ").append(super.toString()).append("; Guns: ");
-        for (Gun gun : guns ) {
+        sb.append(super.toString()).append("; Guns: ");
+        for (Gun gun : guns) {
             sb.append(gun.toString());
         }
+        sb.append("; Direction: ").append(direction);
         return sb.toString();
     }
 }
