@@ -12,12 +12,9 @@ public class RandomPlayer extends Player {
         super(name, map, direction);
     }
 
-    //TODO make random move
     public void makeMove(double time) {
 
         int index = (int)((time % (2 * moveDuration)) / moveDuration);
-
-        //System.out.println(index);
 
         if(index != 1)
             moved = false;
@@ -28,6 +25,7 @@ public class RandomPlayer extends Player {
             newDirection = random.nextInt(4);
             moved = true;
             System.out.println(toString() + " NEW DIRECTION: " + newDirection);
+            getActiveGun().shoot();
         }
 
         switch (newDirection) {

@@ -10,9 +10,17 @@ public class Gun extends GameObject {
     private ArrayList<Bullet> bullets = new ArrayList<>();
     private Player owner;
 
+    public Gun(String filename, String name) {
+        super(filename, name);
+    }
+
     public Gun(String filename, String name, Player player, double positionX, double positionY, double velocityX, double velocityY) {
         super(filename, name, positionX, positionY, velocityX, velocityY);
         this.owner = player;
+    }
+
+    public void setOwner(Player owner) {
+        this.owner = owner;
     }
 
     public ArrayList<Bullet> getBullets() {

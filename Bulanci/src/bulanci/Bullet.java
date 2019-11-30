@@ -4,7 +4,7 @@ public class Bullet extends GameObject {
 
     public Bullet(double positionX, double positionY, double velocityX, double velocityY) {
         super(positionX, positionY, velocityX, velocityY);
-        setImage("sprites/bullet.png");
+        setImage("images/bullet.png");
     }
 
     public boolean isOutOfBounds() {

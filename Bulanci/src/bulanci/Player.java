@@ -14,6 +14,7 @@ public abstract class Player extends GameObject {
     private int direction;
     //mozna dat mapu do GameObject
     private GameMap map;
+    private boolean canMoveUp, canMoveDown, canMoveLeft, canMoveRight;
 
     public Player(String name, GameMap map, int direction) {
         super(name);
@@ -21,6 +22,7 @@ public abstract class Player extends GameObject {
         speed = 200;
         this.direction = direction;
         this.map = map;
+        //canMove = true;
     }
 
     public void addGun(Gun gun) {
@@ -29,6 +31,10 @@ public abstract class Player extends GameObject {
 
     public Gun getActiveGun() {
         return guns.get(gunIndex);
+    }
+
+    public ArrayList<Gun> getGuns() {
+        return guns;
     }
 
     public int getDirection() {
@@ -43,13 +49,52 @@ public abstract class Player extends GameObject {
         return speed;
     }
 
+    /*public void disableMoveDirection(GameObject other) {
+        if(this.getPosition().getY() < (other.getPosition().getY() + other.getHeight())) {
+            //this.setPosition(this.getPosition().getX(), this.getPosition().getY());
+            setCanMoveUp(false);
+        } else if (direction == 1) {
+            //this.setPosition(this.getPosition().getX(), this.getPosition().getY());
+            setCanMoveDown(false);
+        } else if(direction == 2) {
+            //this.setPosition(this.getPosition().getX(), this.getPosition().getY());
+            setCanMoveLeft(false);
+        } else if (direction == 3) {
+            //this.setPosition(this.getPosition().getX(), this.getPosition().getY());
+            setCanMoveRight(false);
+        }
+    }
+
+    public void enableMoveDirection() {
+        setCanMoveUp(true);
+        setCanMoveDown(true);
+        setCanMoveLeft(true);
+        setCanMoveRight(true);
+    }
+
+    public void setCanMoveUp(boolean canMoveUp) {
+        this.canMoveUp = canMoveUp;
+    }
+
+    public void setCanMoveDown(boolean canMoveDown) {
+        this.canMoveDown = canMoveDown;
+    }
+
+    public void setCanMoveLeft(boolean canMoveLeft) {
+        this.canMoveLeft = canMoveLeft;
+    }
+
+    public void setCanMoveRight(boolean canMoveRight) {
+        this.canMoveRight = canMoveRight;
+    }*/
+
     public void moveUp() {
         if(!isOutOnTop()) {
             addVelocity(0, -speed);
             if(direction != 0) {
                 direction = 0;
                 setImage(getImage(direction));
-                getActiveGun().setImage("sprites/gun-up.png");
+                getActiveGun().setImage(getActiveGun().getImage(direction));
             }
             getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
             getActiveGun().setPosition(getPosition().getX() + 10, getPosition().getY() - getActiveGun().getHeight());
@@ -62,7 +107,7 @@ public abstract class Player extends GameObject {
             if(direction != 1) {
                 direction = 1;
                 setImage(getImage(direction));
-                getActiveGun().setImage("sprites/gun-down.png");
+                getActiveGun().setImage(getActiveGun().getImage(direction));
             }
             getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
             getActiveGun().setPosition(getPosition().getX() + getWidth() - 10 * 2, getPosition().getY() + getHeight());
@@ -75,7 +120,7 @@ public abstract class Player extends GameObject {
             if(direction != 2) {
                 direction = 2;
                 setImage(getImage(direction));
-                getActiveGun().setImage("sprites/gun-left.png");
+                getActiveGun().setImage(getActiveGun().getImage(direction));
             }
             getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
             getActiveGun().setPosition(getPosition().getX() - getActiveGun().getWidth(), getPosition().getY() + getHeight() - 10 * 2);
@@ -88,7 +133,7 @@ public abstract class Player extends GameObject {
             if(direction != 3) {
                 direction = 3;
                 setImage(getImage(direction));
-                getActiveGun().setImage("sprites/gun-right.png");
+                getActiveGun().setImage(getActiveGun().getImage(direction));
             }
             getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
             getActiveGun().setPosition(getPosition().getX() + getWidth(), getPosition().getY() + 10);
