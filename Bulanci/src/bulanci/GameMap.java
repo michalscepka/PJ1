@@ -1,6 +1,6 @@
 package bulanci;
 
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
 
@@ -52,13 +52,7 @@ public class GameMap {
         return obstacles;
     }
 
-    public void render(GraphicsContext gc) {
-        for(StaticGameObject obstacle : obstacles) {
-            obstacle.render(gc);
-        }
-    }
-
-    public void spawnEnemy(double time) {
+    public void spawnEnemy(double time, Pane root) {
         int index = (int)((time % (2 * 4)) / 4);
 
         if(index != 1)
@@ -68,7 +62,9 @@ public class GameMap {
         if(enemies.size() < enemiesCount && index == 1 && !spawned) {
             do {
                 enemies.add(initializer.createRandomPlayer(this, enemiesCounter++));
-            }while (enemies.size() < enemiesCount);
+                root.getChildren().add(enemies.get(enemies.size()-1).getView());
+                root.getChildren().add(enemies.get(enemies.size()-1).getActiveGun().getView());
+            } while (enemies.size() < enemiesCount);
 
             spawned = true;
         }

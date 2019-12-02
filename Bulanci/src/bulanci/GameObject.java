@@ -4,30 +4,23 @@ import javafx.geometry.Point2D;
 
 public class GameObject extends StaticGameObject {
 
-    private Point2D velocity;
+    private Point2D velocity = new Point2D(0, 0);
 
     public GameObject(String name) {
         super(name);
-        velocity = new Point2D(0, 0);
     }
 
-    public GameObject(String filename, String name) {
-        super(filename, name);
-        velocity = new Point2D(0, 0);
+    public GameObject(String name, String filename) {
+        super(name, filename);
     }
 
-    public GameObject(double positionX, double positionY, double velocityX, double velocityY) {
-        super(positionX, positionY);
+    public GameObject(String name, double velocityX, double velocityY) {
+        this(name);
         velocity = new Point2D(velocityX, velocityY);
     }
 
-    public GameObject(String filename, double positionX, double positionY, double velocityX, double velocityY) {
-        this(positionX, positionY, velocityX, velocityY);
-        setImage(filename);
-    }
-
-    public GameObject(String filename, String name, double positionX, double positionY, double velocityX, double velocityY) {
-        super(filename, name, positionX, positionY);
+    public GameObject(String name, String filename, double positionX, double positionY, double velocityX, double velocityY) {
+        super(name, filename, positionX, positionY);
         velocity = new Point2D(velocityX, velocityY);
     }
 
@@ -44,11 +37,8 @@ public class GameObject extends StaticGameObject {
     }
 
     public void update(double time) {
-        position = position.add(velocity.getX() * time, velocity.getY() * time);
-    }
-
-    public boolean intersects(StaticGameObject other) {
-        return other.getBoundary().intersects(this.getBoundary());
+        getView().setTranslateX(getView().getTranslateX() + velocity.getX() * time);
+        getView().setTranslateY(getView().getTranslateY() + velocity.getY() * time);
     }
 
     @Override

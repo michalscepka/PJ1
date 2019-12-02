@@ -1,6 +1,6 @@
 package bulanci;
 
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,12 +10,12 @@ public class Gun extends GameObject {
     private ArrayList<Bullet> bullets = new ArrayList<>();
     private Player owner;
 
-    public Gun(String filename, String name) {
+    public Gun(String name, String filename) {
         super(filename, name);
     }
 
-    public Gun(String filename, String name, Player player, double positionX, double positionY, double velocityX, double velocityY) {
-        super(filename, name, positionX, positionY, velocityX, velocityY);
+    public Gun(String name, String filename, Player player, double positionX, double positionY, double velocityX, double velocityY) {
+        super(name, filename, positionX, positionY, velocityX, velocityY);
         this.owner = player;
     }
 
@@ -27,7 +27,7 @@ public class Gun extends GameObject {
         return bullets;
     }
 
-    public void shoot() {
+    public void shoot(Pane root) {
         switch (owner.getDirection()) {
             case 0:
                 bullets.add(new Bullet(getPosition().getX(), getPosition().getY() - 10, 0, owner.getSpeed() * -5));
@@ -42,28 +42,21 @@ public class Gun extends GameObject {
                 bullets.add(new Bullet(getPosition().getX() + getWidth(), getPosition().getY(), owner.getSpeed() * 5, 0));
                 break;
         }
+        root.getChildren().add(bullets.get(bullets.size()-1).getView());
     }
 
-    @Override
-    public void update(double time) {
+    public void update(double time, Pane root) {
         super.update(time);
 
         Iterator<Bullet> bulletIterator = bullets.iterator();
         while (bulletIterator.hasNext()) {
             Bullet bullet = bulletIterator.next();
             if (bullet.isOutOfBounds()) {
+                root.getChildren().removeAll(bullet.getView());
                 bulletIterator.remove();
             } else {
                 bullet.update(time);
             }
         }
-    }
-
-    @Override
-    public void render(GraphicsContext gc) {
-        super.render(gc);
-        if(!bullets.isEmpty())
-            for(Bullet bullet : bullets)
-                bullet.render(gc);
     }
 }

@@ -1,53 +1,47 @@
 package bulanci;
 
 import javafx.geometry.Point2D;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Rectangle;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public abstract class StaticGameObject {
 
-    private Image image;
+    private Rectangle view;
     private ArrayList<Image> images;
-    protected Point2D position;
-    private double width;
-    private double height;
-    private String name = "GameObject";
+    private String name;
     protected DecimalFormat numberFormat = new DecimalFormat("#0.00");
 
+    public StaticGameObject(Rectangle view) {
+        this.view = view;
+    }
+
     public StaticGameObject(String name) {
-        this(0, 0);
         this.name = name;
+        this.view = new Rectangle();
     }
 
-    public StaticGameObject(String filename, String name) {
-        this(0, 0);
-        setImage(filename);
-        this.name = name;
-    }
-
-    public StaticGameObject(double positionX, double positionY) {
-        position = new Point2D(positionX, positionY);
-    }
-
-    public StaticGameObject(String filename, double positionX, double positionY) {
-        this(positionX, positionY);
+    public StaticGameObject(String name, String filename) {
+        this(name);
         setImage(filename);
     }
 
-    public StaticGameObject(String filename, String name, double positionX, double positionY) {
-        this(positionX, positionY);
-        setImage(filename);
-        this.name = name;
+    public StaticGameObject(String name, String filename, double positionX, double positionY) {
+        this(name, filename);
+        this.view.setTranslateX(positionX);
+        this.view.setTranslateY(positionY);
     }
 
     public void setImage(Image image) {
-        this.image = image;
-        width = image.getWidth();
-        height = image.getHeight();
+        view = new Rectangle(view.getTranslateX(), view.getTranslateY(), image.getWidth(), image.getHeight());
+        view.setFill(new ImagePattern(image));
+    }
+
+    public Rectangle getView() {
+        return view;
     }
 
     public void setImage(String filename) {
@@ -67,43 +61,32 @@ public abstract class StaticGameObject {
     }
 
     public Point2D getPosition() {
-        return position;
-    }
-
-    public double getWidth() {
-        return width;
-    }
-
-    public double getHeight() {
-        return height;
+        return new Point2D(view.getTranslateX(), view.getTranslateY());
     }
 
     public void setPosition(double x, double y) {
-        this.position = new Point2D(x, y);
+        this.view.setTranslateX(x);
+        this.view.setTranslateY(y);
     }
 
-    public void render(GraphicsContext gc) {
-        gc.drawImage(image, position.getX(), position.getY());
+    public double getWidth() {
+        return view.getWidth();
     }
 
-    public Rectangle2D getBoundary() {
-        return new Rectangle2D(position.getX(), position.getY(), width, height);
+    public double getHeight() {
+        return  view.getHeight();
     }
 
-    public Rectangle2D getBoundary2() {
-        return new Rectangle2D(position.getX() - 5, position.getY() - 5, width + 5, height + 5);
+    public boolean isColliding(GameObject other) {
+        return getView().getBoundsInParent().intersects(other.getView().getBoundsInParent());
     }
 
-    public boolean intersects(GameObject other) {
-        return other.getBoundary().intersects(this.getBoundary());
-    }
-
-    public boolean isNear(GameObject other) {
-        return other.getBoundary2().intersects(this.getBoundary2());
+    public boolean isColliding(StaticGameObject other) {
+        return getView().getBoundsInParent().intersects(other.getView().getBoundsInParent());
     }
 
     @Override
     public String toString() {
-        return getName() + ": pos[" + numberFormat.format(position.getX()) + ", " + numberFormat.format(position.getY()) + "]";
+        return getName() + ": pos[" + numberFormat.format(view.getTranslateX()) + ", " + numberFormat.format(view.getTranslateY()) + "]";
     }
 }

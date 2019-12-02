@@ -1,6 +1,8 @@
 package bulanci;
 
 
+import javafx.scene.shape.Rectangle;
+
 public class HumanPlayer extends Player {
 
     private int score = 0;
@@ -23,8 +25,6 @@ public class HumanPlayer extends Player {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(super.toString()).append("; Score: ").append(score);
-        return sb.toString();
+        return super.toString() + "; Score: " + score;
     }
 }

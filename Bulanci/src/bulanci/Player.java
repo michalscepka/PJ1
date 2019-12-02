@@ -1,6 +1,6 @@
 package bulanci;
 
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
 
@@ -93,8 +93,8 @@ public abstract class Player extends GameObject {
             addVelocity(0, -speed);
             if(direction != 0) {
                 direction = 0;
-                setImage(getImage(direction));
-                getActiveGun().setImage(getActiveGun().getImage(direction));
+                //getView().setRotate(0);
+                getActiveGun().getView().setRotate(0);
             }
             getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
             getActiveGun().setPosition(getPosition().getX() + 10, getPosition().getY() - getActiveGun().getHeight());
@@ -106,8 +106,8 @@ public abstract class Player extends GameObject {
             addVelocity(0, speed);
             if(direction != 1) {
                 direction = 1;
-                setImage(getImage(direction));
-                getActiveGun().setImage(getActiveGun().getImage(direction));
+                //getView().setRotate(180);
+                getActiveGun().getView().setRotate(180);
             }
             getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
             getActiveGun().setPosition(getPosition().getX() + getWidth() - 10 * 2, getPosition().getY() + getHeight());
@@ -119,8 +119,8 @@ public abstract class Player extends GameObject {
             addVelocity(-speed, 0);
             if(direction != 2) {
                 direction = 2;
-                setImage(getImage(direction));
-                getActiveGun().setImage(getActiveGun().getImage(direction));
+                //getView().setRotate(270);
+                getActiveGun().getView().setRotate(270);
             }
             getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
             getActiveGun().setPosition(getPosition().getX() - getActiveGun().getWidth(), getPosition().getY() + getHeight() - 10 * 2);
@@ -132,8 +132,8 @@ public abstract class Player extends GameObject {
             addVelocity(speed, 0);
             if(direction != 3) {
                 direction = 3;
-                setImage(getImage(direction));
-                getActiveGun().setImage(getActiveGun().getImage(direction));
+                //getView().setRotate(90);
+                getActiveGun().getView().setRotate(90);
             }
             getActiveGun().addVelocity(getVelocity().getX(), getVelocity().getY());
             getActiveGun().setPosition(getPosition().getX() + getWidth(), getPosition().getY() + 10);
@@ -162,16 +162,9 @@ public abstract class Player extends GameObject {
         getActiveGun().setVelocity(x, y);
     }
 
-    @Override
-    public void update(double time) {
+    public void update(double time, Pane root) {
         super.update(time);
-        getActiveGun().update(time);
-    }
-
-    @Override
-    public void render(GraphicsContext gc) {
-        super.render(gc);
-        getActiveGun().render(gc);
+        getActiveGun().update(time, root);
     }
 
     @Override

@@ -7,12 +7,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.ImagePattern;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -26,11 +23,12 @@ public class Main extends Application {
     private GameMap map;
     private ArrayList<String> input;
     private Label labelScore;
+    private Pane root;
 
     @Override
     public void start(Stage primaryStage) {
 
-        Pane root = new Pane();
+        root = new Pane();
         primaryStage.setTitle("Bulanci");
 
         Scene scene = new Scene(root, 800, 625);
@@ -41,7 +39,7 @@ public class Main extends Application {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         gc.setFill(Color.BLACK);
-        gc.fillRect(0, 600, 800, 25);
+        gc.fillRect(0, 600, canvas.getWidth(), 25);
 
         labelScore = new Label("Score: 0");
         labelScore.setTextFill(Color.WHITE);
@@ -58,23 +56,16 @@ public class Main extends Application {
         btnRestart.setVisible(false);
         root.getChildren().add(btnRestart);
 
-        map = new GameMap((int) canvas.getWidth(), 600, 3);//(int) canvas.getHeight(), 3);
-
-        Rectangle rectangle = new Rectangle(100, 100, 64, 64);
-        Image img = new Image("/images/player_F.png");
-        rectangle.setTranslateX(100);
-        rectangle.setTranslateY(100);
-        rectangle.setFill(new ImagePattern(img));
-        //rectangle.setFill(Color.BLACK);
-        rectangle.setRotate(90);
-        root.getChildren().add(rectangle);
+        map = new GameMap((int)canvas.getWidth(), (int)canvas.getHeight() - 25, 3);//(int) canvas.getHeight(), 3);
+        gc.setFill(Color.GREENYELLOW);
+        gc.fillRect(0, 0, map.getWidth(), map.getHeight());
 
         input = new ArrayList<>();
 
         scene.setOnKeyPressed(e -> {
             String code = e.getCode().toString();
             if (e.getCode() == KeyCode.SPACE) {
-                player1.getActiveGun().shoot();
+                player1.getActiveGun().shoot(root);
             } else if (!input.contains(code)) {
                 input.add(code);
             }
@@ -86,10 +77,10 @@ public class Main extends Application {
         });
 
         Initializer initializer = new Initializer();
-        player1 = initializer.initPlayer(map);
-        map.setEnemies(initializer.initRandomPlayers(map, map.getEnemiesCount()));
+        player1 = initializer.initPlayer(map, root);
+        map.setEnemies(initializer.initRandomPlayers(map, map.getEnemiesCount(), root));
         GameMap.setEnemiesCounter(map.getEnemies().size());
-        map.setObstacles(initializer.initStaticGameObjects(map));
+        map.setObstacles(initializer.initStaticGameObjects(map, root));
 
         lastNanoTime = System.nanoTime();
         final long startNanoTime = System.nanoTime();
@@ -103,17 +94,13 @@ public class Main extends Application {
 
                 double t = (currentNanoTime - startNanoTime) / 1000000000.0;
 
-                //System.out.println(t);
-
-                if(t >= 20) {
+                if(t >= 200) {
                     gameOver(gc);
-                    //System.out.println("KONEC");
                 } else {
-                    map.spawnEnemy(t);
+                    map.spawnEnemy(t, root);
                     movement(t);
                     collisionDetection();
                     update(elapsedTime);
-                    render(gc);
                 }
             }
         }.start();
@@ -140,29 +127,31 @@ public class Main extends Application {
 
         for(RandomPlayer bot : map.getEnemies()) {
             bot.setVelocity(0, 0);
-            bot.makeMove(t);
+            bot.makeMove(t, root);
         }
     }
 
     private void collisionDetection() {
-
         Iterator<Bullet> bulletsIterator = player1.getActiveGun().getBullets().iterator();
         Iterator<RandomPlayer> enemiesIterator = map.getEnemies().iterator();
         while (bulletsIterator.hasNext()) {
             GameObject bullet = bulletsIterator.next();
             while(enemiesIterator.hasNext()) {
-                GameObject enemy = enemiesIterator.next();
-                if (enemy.intersects(bullet)) {
+                RandomPlayer enemy = enemiesIterator.next();
+                if (enemy.isColliding(bullet)) {
+                    root.getChildren().removeAll(bullet.getView());
+                    root.getChildren().removeAll(enemy.getView());
+                    root.getChildren().removeAll(enemy.getActiveGun().getView());
                     bulletsIterator.remove();
                     enemiesIterator.remove();
                     player1.addScore();
                     labelScore.setText("Score: " + player1.getScore());
-                    System.out.println(player1.toString());
                 }
             }
             for (StaticGameObject obstacle : map.getObstacles()) {
-                if (bullet.intersects(obstacle)) {
+                if (bullet.isColliding(obstacle)) {
                     bulletsIterator.remove();
+                    root.getChildren().removeAll(bullet.getView());
                 }
             }
         }
@@ -171,12 +160,14 @@ public class Main extends Application {
             bulletsIterator = enemy.getActiveGun().getBullets().iterator();
             while (bulletsIterator.hasNext()) {
                 GameObject bullet = bulletsIterator.next();
-                if (player1.intersects(bullet)) {
+                if (player1.isColliding(bullet)) {
+                    root.getChildren().removeAll(bullet.getView());
                     bulletsIterator.remove();
-                    player1.setImage("images/player_F.png");
+                    //player1.setImage("images/player_F.png");
                 }
                 for (StaticGameObject obstacle : map.getObstacles()) {
-                    if (bullet.intersects(obstacle)) {
+                    if (bullet.isColliding(obstacle)) {
+                        root.getChildren().removeAll(bullet.getView());
                         bulletsIterator.remove();
                     }
                 }
@@ -195,23 +186,10 @@ public class Main extends Application {
     }
 
     private void update(double time) {
-        player1.update(time);
+        player1.update(time, root);
         for(RandomPlayer bot : map.getEnemies()) {
-            bot.update(time);
+            bot.update(time, root);
         }
-    }
-
-    private void render(GraphicsContext gc) {
-        gc.setFill(Color.GREENYELLOW);
-        gc.fillRect(0, 0, map.getWidth(), map.getHeight());
-        /*gc.setFill(Color.BLACK);
-        gc.setFont(new Font("Times", 20));
-        gc.fillText("Score: " + player1.getScore(), 10, 620);*/
-        player1.render(gc);
-        for(RandomPlayer bot : map.getEnemies()) {
-            bot.render(gc);
-        }
-        map.render(gc);
     }
 
     private void gameOver(GraphicsContext gc) {
