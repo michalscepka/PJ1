@@ -5,9 +5,15 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -19,20 +25,49 @@ public class Main extends Application {
     private long lastNanoTime;
     private GameMap map;
     private ArrayList<String> input;
+    private Label labelScore;
 
     @Override
     public void start(Stage primaryStage) {
 
         Pane root = new Pane();
         primaryStage.setTitle("Bulanci");
-        Scene scene = new Scene(root, 800, 600);
+
+        Scene scene = new Scene(root, 800, 625);
         primaryStage.setScene(scene);
 
         Canvas canvas = new Canvas(scene.getWidth(), scene.getHeight());
         root.getChildren().add(canvas);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        map = new GameMap((int) canvas.getWidth(), (int) canvas.getHeight(), 3);
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 600, 800, 25);
+
+        labelScore = new Label("Score: 0");
+        labelScore.setTextFill(Color.WHITE);
+        labelScore.setFont(new Font("Consolas", 20));
+        labelScore.setTranslateX(10);
+        labelScore.setTranslateY(scene.getHeight() - 26);
+        root.getChildren().add(labelScore);
+
+        Button btnRestart = new Button("Restart");
+        btnRestart.setTranslateX(100);
+        btnRestart.setTranslateY(100);
+        btnRestart.setMaxWidth(100);
+        //btn_start.setOnAction(event -> initBoard(Integer.parseInt(tf_size.getText()), Integer.parseInt(tf_mines.getText())));
+        btnRestart.setVisible(false);
+        root.getChildren().add(btnRestart);
+
+        map = new GameMap((int) canvas.getWidth(), 600, 3);//(int) canvas.getHeight(), 3);
+
+        Rectangle rectangle = new Rectangle(100, 100, 64, 64);
+        Image img = new Image("/images/player_F.png");
+        rectangle.setTranslateX(100);
+        rectangle.setTranslateY(100);
+        rectangle.setFill(new ImagePattern(img));
+        //rectangle.setFill(Color.BLACK);
+        rectangle.setRotate(90);
+        root.getChildren().add(rectangle);
 
         input = new ArrayList<>();
 
@@ -68,11 +103,18 @@ public class Main extends Application {
 
                 double t = (currentNanoTime - startNanoTime) / 1000000000.0;
 
-                map.spawnEnemy(t);
-                movement(t);
-                collisionDetection();
-                update(elapsedTime);
-                render(gc);
+                //System.out.println(t);
+
+                if(t >= 20) {
+                    gameOver(gc);
+                    //System.out.println("KONEC");
+                } else {
+                    map.spawnEnemy(t);
+                    movement(t);
+                    collisionDetection();
+                    update(elapsedTime);
+                    render(gc);
+                }
             }
         }.start();
 
@@ -113,6 +155,9 @@ public class Main extends Application {
                 if (enemy.intersects(bullet)) {
                     bulletsIterator.remove();
                     enemiesIterator.remove();
+                    player1.addScore();
+                    labelScore.setText("Score: " + player1.getScore());
+                    System.out.println(player1.toString());
                 }
             }
             for (StaticGameObject obstacle : map.getObstacles()) {
@@ -159,10 +204,21 @@ public class Main extends Application {
     private void render(GraphicsContext gc) {
         gc.setFill(Color.GREENYELLOW);
         gc.fillRect(0, 0, map.getWidth(), map.getHeight());
+        /*gc.setFill(Color.BLACK);
+        gc.setFont(new Font("Times", 20));
+        gc.fillText("Score: " + player1.getScore(), 10, 620);*/
         player1.render(gc);
         for(RandomPlayer bot : map.getEnemies()) {
             bot.render(gc);
         }
         map.render(gc);
+    }
+
+    private void gameOver(GraphicsContext gc) {
+        gc.setFill(Color.BLACK);
+        gc.fillRect(map.getWidth() / 3.0, map.getHeight() / 3.0, map.getWidth() / 3.0, map.getHeight() / 3.0);
+        gc.setFill(Color.WHITE);
+        gc.setFont(new Font("Consolas", 20));
+        gc.fillText("Game Over\nScore: " + player1.getScore(), map.getWidth() / 2.0 - 50, map.getHeight() / 2.0 - 10);
     }
 }
