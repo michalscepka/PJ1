@@ -14,11 +14,6 @@ public class GameObject extends StaticGameObject {
         super(name, filename);
     }
 
-    public GameObject(String name, double velocityX, double velocityY) {
-        this(name);
-        velocity = new Point2D(velocityX, velocityY);
-    }
-
     public GameObject(String name, String filename, double positionX, double positionY, double velocityX, double velocityY) {
         super(name, filename, positionX, positionY);
         velocity = new Point2D(velocityX, velocityY);

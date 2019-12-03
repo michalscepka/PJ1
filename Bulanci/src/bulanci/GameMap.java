@@ -58,10 +58,10 @@ public class GameMap {
         if(index != 1)
             spawned = false;
 
-        Initializer initializer = new Initializer();
+        GameManager gameManager = new GameManager();
         if(enemies.size() < enemiesCount && index == 1 && !spawned) {
             do {
-                enemies.add(initializer.createRandomPlayer(this, enemiesCounter++));
+                enemies.add(gameManager.createRandomPlayer(this, enemiesCounter++));
                 root.getChildren().add(enemies.get(enemies.size()-1).getView());
                 root.getChildren().add(enemies.get(enemies.size()-1).getActiveGun().getView());
             } while (enemies.size() < enemiesCount);

@@ -15,10 +15,6 @@ public abstract class StaticGameObject {
     private String name;
     protected DecimalFormat numberFormat = new DecimalFormat("#0.00");
 
-    public StaticGameObject(Rectangle view) {
-        this.view = view;
-    }
-
     public StaticGameObject(String name) {
         this.name = name;
         this.view = new Rectangle();
@@ -36,7 +32,7 @@ public abstract class StaticGameObject {
     }
 
     public void setImage(Image image) {
-        view = new Rectangle(view.getTranslateX(), view.getTranslateY(), image.getWidth(), image.getHeight());
+        view = new Rectangle(image.getWidth(), image.getHeight());
         view.setFill(new ImagePattern(image));
     }
 

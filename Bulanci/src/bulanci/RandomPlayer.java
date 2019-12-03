@@ -1,14 +1,12 @@
 package bulanci;
 
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Rectangle;
 
 import java.util.Random;
 
 public class RandomPlayer extends Player {
 
     private boolean moved = false;
-    private double moveDuration = 0.5;
     private int newDirection;
 
     public RandomPlayer(String name, GameMap map, int direction) {
@@ -17,6 +15,7 @@ public class RandomPlayer extends Player {
 
     public void makeMove(double time, Pane root) {
 
+        double moveDuration = 0.5;
         int index = (int)((time % (2 * moveDuration)) / moveDuration);
 
         if(index != 1)
@@ -26,7 +25,7 @@ public class RandomPlayer extends Player {
             Random random = new Random();
             newDirection = random.nextInt(4);
             moved = true;
-            System.out.println(toString() + " NEW DIRECTION: " + newDirection);
+            //System.out.println(toString() + " NEW DIRECTION: " + newDirection);
             getActiveGun().shoot(root);
         }
 
