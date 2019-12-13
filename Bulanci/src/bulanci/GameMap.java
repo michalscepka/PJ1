@@ -3,6 +3,7 @@ package bulanci;
 import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameMap {
 
@@ -59,12 +60,20 @@ public class GameMap {
             spawned = false;
 
         GameManager gameManager = new GameManager();
+        Random random = new Random();
+
         if(enemies.size() < enemiesCount && index == 1 && !spawned) {
-            do {
+            while (enemies.size() < enemiesCount) {
                 enemies.add(gameManager.createRandomPlayer(this, enemiesCounter++));
-                root.getChildren().add(enemies.get(enemies.size()-1).getView());
-                root.getChildren().add(enemies.get(enemies.size()-1).getActiveGun().getView());
-            } while (enemies.size() < enemiesCount);
+                do {
+                    enemies.get(enemies.size() - 1).setPosition(
+                            random.nextInt(getWidth() - (int)enemies.get(enemies.size() - 1).getWidth()),
+                            random.nextInt(getHeight() - (int)enemies.get(enemies.size() - 1).getHeight()));
+                } while(gameManager.cantPlaceEnemy(enemies, getObstacles()));
+
+                root.getChildren().add(enemies.get(enemies.size() - 1).getView());
+                root.getChildren().add(enemies.get(enemies.size() - 1).getActiveGun().getView());
+            }
 
             spawned = true;
         }

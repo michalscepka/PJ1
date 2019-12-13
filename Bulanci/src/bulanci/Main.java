@@ -146,10 +146,10 @@ public class Main extends Application {
 
         map = new GameMap((int)canvas.getWidth(), (int)canvas.getHeight() - 25, 3);
         gameManager = new GameManager();
-        player1 = gameManager.initPlayer(map, root);
+        map.setObstacles(gameManager.initStaticGameObjects(map, root));
         map.setEnemies(gameManager.initRandomPlayers(map, map.getEnemiesCount(), root));
         GameMap.setEnemiesCounter(map.getEnemies().size());
-        map.setObstacles(gameManager.initStaticGameObjects(map, root));
+        player1 = gameManager.initPlayer(map, root);
 
         gc.setFill(Color.GREENYELLOW);
         gc.fillRect(0, 0, map.getWidth(), map.getHeight());
@@ -183,6 +183,7 @@ public class Main extends Application {
     }
 
     private void collisionDetection() {
+        //hracovy bullety
         Iterator<Bullet> bulletsIterator = player1.getActiveGun().getBullets().iterator();
         Iterator<RandomPlayer> enemiesIterator = map.getEnemies().iterator();
         while (bulletsIterator.hasNext()) {
@@ -209,6 +210,7 @@ public class Main extends Application {
             }
         }
 
+        //bullety od botu
         for (RandomPlayer enemy : map.getEnemies()) {
             bulletsIterator = enemy.getActiveGun().getBullets().iterator();
             while (bulletsIterator.hasNext()) {
@@ -232,6 +234,7 @@ public class Main extends Application {
             }
         }
 
+        //kolize s movementem
         player1.enableMoveDirections();
         player1.detectCollisionStatic(map.getObstacles());
         player1.detectCollisionDynamic(map.getEnemies());
@@ -255,7 +258,8 @@ public class Main extends Application {
         gc.fillRect(map.getWidth() / 3.0, map.getHeight() / 3.0, map.getWidth() / 3.0, map.getHeight() / 3.0);
         gc.setFill(Color.WHITE);
         gc.setFont(font);
-        gc.fillText("Game Over\nScore: " + player1.getScore(), map.getWidth() / 2.0 - 50, map.getHeight() / 2.0 - 10);
+        gc.fillText("Game Over\nScore: " + player1.getScore() + "\nDeaths: " + player1.getDeaths(),
+                map.getWidth() / 2.0 - 50, map.getHeight() / 2.0 - 30);
         gameManager.clearGameObjects(root, player1, map);
         btnRestart.setVisible(true);
     }

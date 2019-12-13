@@ -94,50 +94,66 @@ public abstract class Player extends GameObject {
     }
 
     public void moveUp() {
+        rotateUp();
         if(!isOutOnTop() && canMoveUp) {
             addVelocity(0, -speed);
-            if(direction != 0) {
-                direction = 0;
-                //getView().setRotate(0);
-                getActiveGun().getView().setRotate(0);
-                getActiveGun().setPosition(getPosition().getX() + 10, getPosition().getY() - getActiveGun().getHeight());
-            }
         }
     }
 
     public void moveDown() {
+        rotateDown();
         if(!isOutOnBot() && canMoveDown) {
             addVelocity(0, speed);
-            if(direction != 1) {
-                direction = 1;
-                //getView().setRotate(180);
-                getActiveGun().getView().setRotate(180);
-                getActiveGun().setPosition(getPosition().getX() + getWidth() - 10 * 2, getPosition().getY() + getHeight());
-            }
         }
     }
 
     public void moveLeft() {
+        rotateLeft();
         if(!isOutOnLeft() && canMoveLeft) {
             addVelocity(-speed, 0);
-            if (direction != 2) {
-                direction = 2;
-                //getView().setRotate(270);
-                getActiveGun().getView().setRotate(270);
-                getActiveGun().setPosition(getPosition().getX() - getActiveGun().getWidth(), getPosition().getY() + getHeight() - 10 * 2);
-            }
         }
     }
 
     public void moveRight() {
+        rotateRight();
         if(!isOutOnRight() && canMoveRight) {
             addVelocity(speed, 0);
-            if(direction != 3) {
-                direction = 3;
-                //getView().setRotate(90);
-                getActiveGun().getView().setRotate(90);
-                getActiveGun().setPosition(getPosition().getX() + getWidth(), getPosition().getY() + 10);
-            }
+        }
+    }
+
+    private void rotateUp() {
+        if(direction != 0) {
+            direction = 0;
+            getView().setRotate(180);
+            getActiveGun().getView().setRotate(180);
+            getActiveGun().setPosition(getPosition().getX() + 10, getPosition().getY() - getActiveGun().getHeight());
+        }
+    }
+
+    private void rotateDown() {
+        if(direction != 1) {
+            direction = 1;
+            getView().setRotate(0);
+            getActiveGun().getView().setRotate(0);
+            getActiveGun().setPosition(getPosition().getX() + getWidth() - 10 * 2, getPosition().getY() + getHeight());
+        }
+    }
+
+    private void rotateLeft() {
+        if (direction != 2) {
+            direction = 2;
+            getView().setRotate(90);
+            getActiveGun().getView().setRotate(90);
+            getActiveGun().setPosition(getPosition().getX() - getActiveGun().getWidth(), getPosition().getY() + getHeight() - 10 * 2);
+        }
+    }
+
+    private void rotateRight() {
+        if(direction != 3) {
+            direction = 3;
+            getView().setRotate(270);
+            getActiveGun().getView().setRotate(270);
+            getActiveGun().setPosition(getPosition().getX() + getWidth(), getPosition().getY() + 10);
         }
     }
 

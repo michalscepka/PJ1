@@ -24,12 +24,18 @@ public class GameManager {
     }
 
     public ArrayList<RandomPlayer> initRandomPlayers(GameMap map, int count, Pane root) {
-
+        Random random = new Random();
         ArrayList<RandomPlayer> enemies = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             enemies.add(createRandomPlayer(map, i));
+            do {
+                enemies.get(i).setPosition(
+                        random.nextInt(map.getWidth() - (int)enemies.get(i).getWidth()),
+                        random.nextInt(map.getHeight() - (int)enemies.get(i).getHeight()));
+            } while(cantPlaceEnemy(enemies, map.getObstacles()));
             root.getChildren().add(enemies.get(i).getView());
             root.getChildren().add(enemies.get(i).getActiveGun().getView());
+            System.out.println(enemies.size());
         }
         for(RandomPlayer bot : enemies) {
             System.out.println(bot.toString());
@@ -38,14 +44,9 @@ public class GameManager {
     }
 
     public RandomPlayer createRandomPlayer(GameMap map, int index) {
-
-        Random random = new Random();
         RandomPlayer bot = new RandomPlayer("bot_" + index, map, 0);
-        bot.setImage("images/bot_down.png");
+        bot.setImage("images/player_bot.png");
         bot.addGun(new Gun("Pistol", "images/gun-up.png", bot, 100));
-        double x = random.nextInt(map.getWidth() - (int)bot.getWidth());
-        double y = random.nextInt(map.getHeight() - (int)bot.getHeight());
-        bot.setPosition(x, y);
 
         return bot;
     }
@@ -53,27 +54,47 @@ public class GameManager {
     public ArrayList<StaticGameObject> initStaticGameObjects(GameMap map, Pane root) {
         ArrayList<StaticGameObject> obstacles = new ArrayList<>();
 
+        int[] angles = {0, 90, 180, 270};
         Random random = new Random();
         for(int i = 0; i < 10; i++) {
             obstacles.add(new Bush("images/bush.png"));
             do {
                 obstacles.get(i).setPosition(random.nextInt(map.getWidth() - 64), random.nextInt(map.getHeight() - 64));
-            } while(!canBePlaced(obstacles));
+            } while(cantPlaceObstacle(obstacles));
+            obstacles.get(i).getView().setRotate(angles[random.nextInt(4)]);
 
             root.getChildren().add(obstacles.get(i).getView());
-            System.out.println(obstacles.get(i).toString());
         }
 
         return obstacles;
     }
 
-    private boolean canBePlaced(ArrayList<StaticGameObject> obstacles) {
-        for(int i = 0; i < obstacles.size() - 1; i++) {
+    public boolean cantPlaceObstacle(ArrayList<StaticGameObject> obstacles) {
+        for(int i = 0; i < obstacles.size() - 1; i++)
             if(obstacles.get(i).isColliding(obstacles.get(obstacles.size() - 1)))
-                return false;
-        }
-        return true;
+                return true;
+        return false;
     }
+
+    public boolean cantPlaceEnemy(ArrayList<RandomPlayer> enemies, ArrayList<StaticGameObject> obstacles) {
+        for(int i = 0; i < enemies.size() - 1; i++)
+            if(enemies.get(i).isColliding(enemies.get(enemies.size() - 1)))
+                return true;
+        for (StaticGameObject obstacle : obstacles)
+            if (obstacle.isColliding(enemies.get(enemies.size() - 1)))
+                return true;
+        return false;
+    }
+
+    /*public boolean cantPlacePlayer(GameMap map) {
+        for(int i = 0; i < enemies.size() - 1; i++)
+            if(enemies.get(i).isColliding(enemies.get(enemies.size() - 1)))
+                return true;
+        for (StaticGameObject obstacle : obstacles)
+            if (obstacle.isColliding(enemies.get(enemies.size() - 1)))
+                return true;
+        return false;
+    }*/
 
     public void clearGameObjects(Pane root, HumanPlayer player, GameMap map) {
         root.getChildren().remove(player.getView());
