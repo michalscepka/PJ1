@@ -22,8 +22,8 @@ public class Person {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getName());
-        for(int i = 0; i < times.size(); i++) {
-            sb.append(" " + times.get(i).toString());
+        for (Time time : times) {
+            sb.append(" ").append(time.toString());
         }
         return sb.toString();
     }

@@ -15,25 +15,19 @@ public class Loader {
 
     public void load(String file) throws IOException {
         ArrayList<Person> array = new ArrayList<>();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(file));
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line = reader.readLine();
 
-            while(line != null) {
+            while (line != null) {
                 String[] items = line.split("[ :,]");
                 LinkedList<Time> times = new LinkedList<>();
 
-                for(int i = 2; i < items.length; i += 3) {
-                    times.add(new Time(Integer.parseInt(items[i]), Integer.parseInt(items[i+1]), Integer.parseInt(items[i+2])));
+                for (int i = 2; i < items.length; i += 3) {
+                    times.add(new Time(Integer.parseInt(items[i]), Integer.parseInt(items[i + 1]), Integer.parseInt(items[i + 2])));
                 }
 
                 array.add(new Person(items[0], items[1], times));
                 line = reader.readLine();
-            }
-        } finally {
-            if(reader != null) {
-                reader.close();
             }
         }
         this.persons = array;
@@ -42,8 +36,8 @@ public class Loader {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        for(int i = 0; i < persons.size(); i++) {
-            s.append(persons.get(i).toString()).append("\n");
+        for (Person person : persons) {
+            s.append(person.toString()).append("\n");
         }
         return s.toString();
     }
