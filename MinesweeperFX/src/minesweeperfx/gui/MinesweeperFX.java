@@ -12,8 +12,6 @@ import minesweeperfx.board.Board;
 
 public class MinesweeperFX extends Application {
 
-    private Board board;
-    private BoardCanvas canvas;
     private StackPane root;
 
     @Override
@@ -65,9 +63,9 @@ public class MinesweeperFX extends Application {
     }
 
     private void initBoard(int size, int mines) {
-        board = new Board(size, mines);
+        Board board = new Board(size, mines);
         board.initializeBoard();
-        canvas = new BoardCanvas(board, 500, 500);
+        BoardCanvas canvas = new BoardCanvas(board, 500, 500);
         canvas.printBoard();
         root.getChildren().add(canvas);
     }
