@@ -115,7 +115,7 @@ public class Main extends Application {
 
     private void pauseInput() {
         t1.setWait();
-        if(!t1.isWait()) {
+        if(!t1.isWaiting()) {
             btn_pause.setText("Pause");
             t1.setResumedTime(LocalTime.now());
             t1.calculatePauseDuration();

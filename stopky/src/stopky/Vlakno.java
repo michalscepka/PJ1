@@ -7,7 +7,7 @@ public class Vlakno extends Thread {
 
     private LocalTime startTime;
     private Duration currentTime;
-    private boolean wait = false;
+    private boolean waiting = false;
     private LocalTime pausedTime;
     private LocalTime resumedTime;
 
@@ -18,7 +18,7 @@ public class Vlakno extends Thread {
     @Override
     public void run() {
         while(!isInterrupted()) {
-            if(wait) {
+            if(waiting) {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException ignore) {}
@@ -33,12 +33,12 @@ public class Vlakno extends Thread {
         return currentTime;
     }
 
-    public boolean isWait() {
-        return wait;
+    public boolean isWaiting() {
+        return waiting;
     }
 
     public void setWait() {
-        wait = !wait;
+        waiting = !waiting;
     }
 
     public void setPausedTime(LocalTime pausedTime) {
