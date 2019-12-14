@@ -7,39 +7,46 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
+import java.util.*;
 
 public class Main extends Application {
 
     private Pane root;
     private Canvas canvas;
     private GraphicsContext gc;
+
     private GameMap map;
     private GameManager gameManager;
-    private ArrayList<String> input;
+
     private long lastNanoTime;
     private long startNanoTime;
+    private int roundTime = 60;
+
     private HumanPlayer player1;
+    private ArrayList<String> input;
+
     private Label labelScore;
     private Label labelDeaths;
     private Label labelTime;
     private Label labelAmmo;
     private Button btnRestart;
-    private int roundTime = 60;
+    private TextField tfName;
+    private Font font = new Font("Consolas", 20);
+
     private DecimalFormat numberFormat = new DecimalFormat("#0.0");
-    Font font = new Font("Consolas", 20);
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws IOException {
 
         root = new Pane();
         primaryStage.setTitle("Bulanci");
@@ -74,9 +81,19 @@ public class Main extends Application {
         btnRestart = new Button("Restart");
         btnRestart.setMaxWidth(100);
         btnRestart.setTranslateX((scene.getWidth() / 2) - 25);
-        btnRestart.setTranslateY((scene.getHeight() / 2) + 20);
-        btnRestart.setOnAction(event -> starGame());
+        btnRestart.setTranslateY((scene.getHeight() / 2) + 50);
+        btnRestart.setOnAction(event -> {
+            try {
+                starGame();
+            } catch (IOException ignored) {}
+        });
         root.getChildren().add(btnRestart);
+
+        tfName = new TextField();
+        tfName.setMaxWidth(100);
+        tfName.setTranslateX((scene.getWidth() / 2) - 50);
+        tfName.setTranslateY((scene.getHeight() / 2) + 18);
+        root.getChildren().add(tfName);
 
         starGame();
 
@@ -114,7 +131,11 @@ public class Main extends Application {
                 double t = (currentNanoTime - startNanoTime) / 1000000000.0;
 
                 if(t >= roundTime) {
-                    gameOver(gc);
+                    if(!btnRestart.isVisible()) {
+                        try {
+                            gameOver();
+                        } catch (IOException ignored) { }
+                    }
                 } else {
                     map.spawnEnemy(t, root);
                     movement(t);
@@ -123,8 +144,10 @@ public class Main extends Application {
                     labelTime.setText("Time: " + numberFormat.format(roundTime - t));
                     if(player1.getActiveGun().getAmmo() <= 0) {
                         if(player1.getActiveGun().reload(t)) {
+                            labelAmmo.setTextFill(Color.WHITE);
                             labelAmmo.setText("Ammo: " + player1.getActiveGun().getAmmo());
                         } else {
+                            labelAmmo.setTextFill(Color.ORANGERED);
                             labelAmmo.setText("Ammo: Reloading...");
                         }
                     }
@@ -139,12 +162,22 @@ public class Main extends Application {
         launch(args);
     }
 
-    private void starGame() {
+    private void starGame() throws IOException {
+
+        FileWriter writer = new FileWriter("scores.txt", true);
+        try {
+            if(tfName.getText().length() == 0)
+                tfName.setText("_");
+            writer.write(tfName.getText() + ";" + player1.getScore() + ";" + player1.getDeaths() + System.lineSeparator());
+        } catch (java.lang.NullPointerException ignore) {}
+        writer.close();
+        tfName.setText("");
+
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 600, canvas.getWidth(), 25);
 
-        map = new GameMap((int)canvas.getWidth(), (int)canvas.getHeight() - 25, 3);
+        map = new GameMap((int)canvas.getWidth(), (int)canvas.getHeight() - 25, 4);
         gameManager = new GameManager();
         map.setObstacles(gameManager.initStaticGameObjects(map, root));
         map.setEnemies(gameManager.initRandomPlayers(map, map.getEnemiesCount(), root));
@@ -161,6 +194,28 @@ public class Main extends Application {
         lastNanoTime = System.nanoTime();
         startNanoTime = System.nanoTime();
         btnRestart.setVisible(false);
+        tfName.setVisible(false);
+    }
+
+    private void showLeaderBoard() throws IOException {
+        Loader loader = new Loader();
+        loader.load("scores.txt");
+
+        ArrayList<HumanPlayer> players = loader.getPlayers();
+        Collections.sort(players);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Top 10 scores\n# Name\tScore\tDeaths\n");
+        for (int i = 0; i < 10; i++) {
+            if (i < players.size())
+                sb.append(i + 1).append(' ').append(players.get(i).getName()).append('\t').append(players.get(i).getScore()).append('\t').append(players.get(i).getDeaths()).append('\n');
+            else break;
+        }
+
+        System.out.println(loader.getAllNames());
+
+        gc.setFill(Color.BLACK);
+        gc.setFont(font);
+        gc.fillText(sb.toString(), 10, 20);
     }
 
     private void movement(double t) {
@@ -178,7 +233,8 @@ public class Main extends Application {
 
         for(RandomPlayer bot : map.getEnemies()) {
             bot.setVelocity(0, 0);
-            bot.makeMove(t, root);
+            bot.makeMove(t);
+            bot.shoot(t, root);
         }
     }
 
@@ -222,7 +278,9 @@ public class Main extends Application {
                     player1.addDeaths();
                     labelDeaths.setText("Deaths: " + player1.getDeaths());
                     Random random = new Random();
-                    player1.setPosition(random.nextInt((int)(map.getWidth() - player1.getWidth())), random.nextInt((int)(map.getHeight() - player1.getHeight())));
+                    do {
+                        player1.setPosition(random.nextInt(map.getWidth() - 64), random.nextInt(map.getHeight() - 64));
+                    } while(gameManager.canNotPlacePlayer(player1, map.getEnemies(), map.getObstacles()));
                     root.getChildren().add(player1.getView());
                 }
                 for (StaticGameObject obstacle : map.getObstacles()) {
@@ -253,14 +311,18 @@ public class Main extends Application {
         }
     }
 
-    private void gameOver(GraphicsContext gc) {
+    private void gameOver() throws IOException {
         gc.setFill(Color.BLACK);
         gc.fillRect(map.getWidth() / 3.0, map.getHeight() / 3.0, map.getWidth() / 3.0, map.getHeight() / 3.0);
         gc.setFill(Color.WHITE);
         gc.setFont(font);
         gc.fillText("Game Over\nScore: " + player1.getScore() + "\nDeaths: " + player1.getDeaths(),
-                map.getWidth() / 2.0 - 50, map.getHeight() / 2.0 - 30);
+                map.getWidth() / 2.0 - 50, map.getHeight() / 2.0 - 45);
+        gc.setFont(new Font("Consolas", 11));
+        gc.fillText("Enter your name:", map.getWidth() / 2.0 - 50, map.getHeight() / 2.0 + 22);
         gameManager.clearGameObjects(root, player1, map);
         btnRestart.setVisible(true);
+        tfName.setVisible(true);
+        showLeaderBoard();
     }
 }

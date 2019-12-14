@@ -8,12 +8,13 @@ public class RandomPlayer extends Player {
 
     private boolean moved = false;
     private int newDirection;
+    private double shootTime = -1;
 
     public RandomPlayer(String name, GameMap map, int direction) {
         super(name, map, direction);
     }
 
-    public void makeMove(double time, Pane root) {
+    public void makeMove(double time) {
 
         double moveDuration = 0.5;
         int index = (int)((time % (2 * moveDuration)) / moveDuration);
@@ -26,7 +27,6 @@ public class RandomPlayer extends Player {
             newDirection = random.nextInt(4);
             moved = true;
             //System.out.println(toString() + " NEW DIRECTION: " + newDirection);
-            getActiveGun().shoot(root);
         }
 
         switch (newDirection) {
@@ -42,6 +42,16 @@ public class RandomPlayer extends Player {
             case 3:
                 moveRight();
                 break;
+        }
+    }
+
+    public void shoot(double time, Pane root) {
+        if(shootTime == -1)
+            shootTime = time;
+
+        if(shootTime + 0.75 < time) {
+            getActiveGun().shoot(root);
+            shootTime = -1;
         }
     }
 }

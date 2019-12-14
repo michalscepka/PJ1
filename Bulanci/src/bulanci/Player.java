@@ -18,6 +18,10 @@ public abstract class Player extends GameObject {
     private boolean canMoveLeft = true;
     private boolean canMoveRight = true;
 
+    public Player(String name) {
+        super(name);
+    }
+
     public Player(String name, GameMap map, int direction) {
         super(name);
         gunIndex = 0;

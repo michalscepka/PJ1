@@ -1,12 +1,20 @@
 package bulanci;
 
-public class HumanPlayer extends Player {
+import java.io.Serializable;
+
+public class HumanPlayer extends Player implements Serializable, Comparable<HumanPlayer> {
 
     private int score = 0;
     private int deaths = 0;
 
     public HumanPlayer(String name, GameMap map, int direction) {
         super(name, map, direction);
+    }
+
+    public HumanPlayer(String name, int score, int deaths) {
+        super(name);
+        this.score = score;
+        this.deaths = deaths;
     }
 
     public int getScore() {
@@ -28,5 +36,10 @@ public class HumanPlayer extends Player {
     @Override
     public String toString() {
         return super.toString() + "; Score: " + score + "; Deaths: " + deaths;
+    }
+
+    @Override
+    public int compareTo(HumanPlayer humanPlayer) {
+        return humanPlayer.getScore() - this.getScore();
     }
 }

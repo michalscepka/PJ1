@@ -69,7 +69,7 @@ public class GameMap {
                     enemies.get(enemies.size() - 1).setPosition(
                             random.nextInt(getWidth() - (int)enemies.get(enemies.size() - 1).getWidth()),
                             random.nextInt(getHeight() - (int)enemies.get(enemies.size() - 1).getHeight()));
-                } while(gameManager.cantPlaceEnemy(enemies, getObstacles()));
+                } while(gameManager.canNotPlaceEnemy(enemies, getObstacles()));
 
                 root.getChildren().add(enemies.get(enemies.size() - 1).getView());
                 root.getChildren().add(enemies.get(enemies.size() - 1).getActiveGun().getView());
