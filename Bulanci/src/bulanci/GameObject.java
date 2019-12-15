@@ -19,10 +19,6 @@ public class GameObject extends StaticGameObject {
         velocity = new Point2D(velocityX, velocityY);
     }
 
-    public Point2D getVelocity() {
-        return velocity;
-    }
-
     public void setVelocity(double x, double y) {
         this.velocity = new Point2D(x, y);
     }

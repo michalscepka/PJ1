@@ -27,7 +27,7 @@ public class GameManager {
 
     private long lastNanoTime;
     private long startNanoTime;
-    private int roundTime = 15;
+    private int roundTime = 60;
 
     private Label labelScore;
     private Label labelDeaths;
@@ -43,10 +43,6 @@ public class GameManager {
         this.map = map;
         this.root = root;
         this.gc = gc;
-    }
-
-    public GameMap getMap() {
-        return map;
     }
 
     public HumanPlayer getPlayer() {
@@ -81,7 +77,7 @@ public class GameManager {
         btnRestart.setTranslateY((scene.getHeight() / 2) + 50);
         btnRestart.setOnAction(event -> {
             try {
-                starGame(scene, canvas);
+                starGame(canvas);
             } catch (IOException ignored) {}
         });
         root.getChildren().add(btnRestart);
@@ -91,9 +87,16 @@ public class GameManager {
         tfName.setTranslateX((scene.getWidth() / 2) - 50);
         tfName.setTranslateY((scene.getHeight() / 2) + 18);
         root.getChildren().add(tfName);
+
+        labelAmmo = new Label("Ammo: ");
+        labelAmmo.setTextFill(Color.WHITE);
+        labelAmmo.setFont(font);
+        labelAmmo.setTranslateX(scene.getWidth() - 220);
+        labelAmmo.setTranslateY(scene.getHeight() - 26);
+        root.getChildren().add(labelAmmo);
     }
 
-    public void starGame(Scene scene, Canvas canvas) throws IOException {
+    public void starGame(Canvas canvas) throws IOException {
 
         FileWriter writer = new FileWriter("scores.txt", true);
         try {
@@ -108,30 +111,25 @@ public class GameManager {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 600, canvas.getWidth(), 25);
 
-        getMap().setGrass(initStaticGameObjects(30, new String[]{"images/grass1.png", "images/grass2.png", "images/grass3.png"}, new int[]{0}));
-        getMap().setObstacles(initStaticGameObjects(12, new String[]{"images/bush.png", "images/rock.png"}, new int[]{0, 90, 180, 270}));
-        getMap().setEnemies(initRandomPlayers(getMap().getEnemiesCount()));
-        GameMap.setEnemiesCounter(getMap().getEnemies().size());
-        initPlayer();
+        map.setGrass(createStaticGameObjects(30, new String[]{"images/grass1.png", "images/grass2.png", "images/grass3.png"}));
+        map.setObstacles(createStaticGameObjects(12, new String[]{"images/bush1.png", "images/bush2.png", "images/bush3.png", "images/rock.png"}));
+        map.setEnemies(createRandomPlayers(map.getEnemiesCount()));
+        map.setGuns(new ArrayList<>());
+        GameMap.setEnemiesCounter(map.getEnemies().size());
+        createPlayer();
 
         gc.setFill(Color.GREENYELLOW);
-        gc.fillRect(0, 0, getMap().getWidth(), getMap().getHeight());
+        gc.fillRect(0, 0, map.getWidth(), map.getHeight());
 
         labelScore.setText("Score: 0");
         labelDeaths.setText("Deaths: 0");
         labelTime.setText("Time: " + roundTime);
+        labelAmmo.setText("Ammo: " + player.getActiveGun().getAmmo());
 
         lastNanoTime = System.nanoTime();
         startNanoTime = System.nanoTime();
         btnRestart.setVisible(false);
         tfName.setVisible(false);
-
-        labelAmmo = new Label("Ammo: " + player.getActiveGun().getAmmo());
-        labelAmmo.setTextFill(Color.WHITE);
-        labelAmmo.setFont(font);
-        labelAmmo.setTranslateX(scene.getWidth() - 220);
-        labelAmmo.setTranslateY(scene.getHeight() - 26);
-        root.getChildren().add(labelAmmo);
     }
 
     public void update(long currentNanoTime, ArrayList<String> input) {
@@ -147,10 +145,11 @@ public class GameManager {
                 } catch (IOException ignored) { }
             }
         } else {
-            getMap().spawnEnemy(this, t, root);
+            map.spawnEnemy(this, t, root);
             movement(t, input);
             collisionDetection();
             updatePlayers(elapsedTime);
+            map.spawnGuns(this, t, root);
             labelTime.setText("Time: " + numberFormat.format(roundTime - t));
             if(player.getActiveGun().getAmmo() <= 0) {
                 if(player.getActiveGun().reload(t)) {
@@ -160,6 +159,9 @@ public class GameManager {
                     labelAmmo.setTextFill(Color.ORANGERED);
                     labelAmmo.setText("Ammo: Reloading...");
                 }
+            } else {
+                labelAmmo.setTextFill(Color.WHITE);
+                labelAmmo.setText("Ammo: " + player.getActiveGun().getAmmo());
             }
         }
     }
@@ -177,7 +179,7 @@ public class GameManager {
                 player.moveRight();
         }
 
-        for(RandomPlayer bot : getMap().getEnemies()) {
+        for(RandomPlayer bot : map.getEnemies()) {
             bot.setVelocity(0, 0);
             bot.makeMove(t);
             bot.shoot(t, root);
@@ -186,20 +188,27 @@ public class GameManager {
 
     public void updatePlayers(double time) {
         player.update(time, root);
-        for(RandomPlayer bot : getMap().getEnemies()) {
+        for(RandomPlayer bot : map.getEnemies()) {
             bot.update(time, root);
         }
     }
 
     private void collisionDetection() {
-        //hracovy bullety
+        playerBulletsCollision();
+        botsBulletsCollision();
+        movementCollision();
+        gunPickFromGround();
+    }
+
+    private void playerBulletsCollision() {
         Iterator<Bullet> bulletsIterator = player.getActiveGun().getBullets().iterator();
-        Iterator<RandomPlayer> enemiesIterator = getMap().getEnemies().iterator();
         while (bulletsIterator.hasNext()) {
             GameObject bullet = bulletsIterator.next();
+            Iterator<RandomPlayer> enemiesIterator = map.getEnemies().iterator();
             while(enemiesIterator.hasNext()) {
                 RandomPlayer enemy = enemiesIterator.next();
                 if (enemy.isColliding(bullet)) {
+                    System.out.println(bullet.toString());
                     root.getChildren().removeAll(bullet.getView());
                     root.getChildren().removeAll(enemy.getView());
                     root.getChildren().removeAll(enemy.getActiveGun().getView());
@@ -213,7 +222,7 @@ public class GameManager {
                     labelScore.setText("Score: " + player.getScore());
                 }
             }
-            for (StaticGameObject obstacle : getMap().getObstacles()) {
+            for (StaticGameObject obstacle : map.getObstacles()) {
                 if (bullet.isColliding(obstacle)) {
                     try {
                         bulletsIterator.remove();
@@ -222,39 +231,59 @@ public class GameManager {
                 }
             }
         }
+    }
 
-        //bullety od botu
-        for (RandomPlayer enemy : getMap().getEnemies()) {
-            bulletsIterator = enemy.getActiveGun().getBullets().iterator();
+    private void botsBulletsCollision() {
+        for (RandomPlayer enemy : map.getEnemies()) {
+            Iterator<Bullet> bulletsIterator = enemy.getActiveGun().getBullets().iterator();
             while (bulletsIterator.hasNext()) {
                 GameObject bullet = bulletsIterator.next();
                 if (player.isColliding(bullet)) {
                     root.getChildren().removeAll(bullet.getView());
                     //root.getChildren().removeAll(player1.getView());
-                    bulletsIterator.remove();
+                    try {
+                        bulletsIterator.remove();
+                    } catch (Exception ignored) {}
                     player.addDeaths();
                     labelDeaths.setText("Deaths: " + player.getDeaths());
                     respawnPlayer();
                     //root.getChildren().add(player1.getView());
                 }
-                for (StaticGameObject obstacle : getMap().getObstacles()) {
+                for (StaticGameObject obstacle : map.getObstacles()) {
                     if (bullet.isColliding(obstacle)) {
                         root.getChildren().removeAll(bullet.getView());
-                        bulletsIterator.remove();
+                        try {
+                            bulletsIterator.remove();
+                        } catch (Exception ignored) {}
                     }
                 }
             }
         }
+    }
 
-        //kolize s movementem
+    private void movementCollision() {
         player.enableMoveDirections();
-        player.detectCollisionStatic(getMap().getObstacles());
-        player.detectCollisionDynamic(getMap().getEnemies());
-        for(RandomPlayer enemy : getMap().getEnemies()) {
+        player.detectCollisionStatic(map.getObstacles());
+        player.detectCollisionDynamic(map.getEnemies());
+        for(RandomPlayer enemy : map.getEnemies()) {
             enemy.enableMoveDirections();
-            enemy.detectCollisionStatic(getMap().getObstacles());
-            enemy.detectCollisionDynamic(getMap().getEnemies());
+            enemy.detectCollisionStatic(map.getObstacles());
+            enemy.detectCollisionDynamic(map.getEnemies());
             enemy.detectCollisionDynamic(player);
+        }
+    }
+
+    private void gunPickFromGround() {
+        Iterator<Gun> gunsIterator = map.getGuns().iterator();
+        while (gunsIterator.hasNext()) {
+            Gun gun = gunsIterator.next();
+            if(player.isColliding(gun)) {
+                if(player.addGun(gun))
+                    gun.getView().setVisible(false);
+                else
+                    root.getChildren().removeAll(gun.getView());
+                gunsIterator.remove();
+            }
         }
     }
 
@@ -263,6 +292,12 @@ public class GameManager {
         do {
             player.setPosition(random.nextInt(map.getWidth() - 64), random.nextInt(map.getHeight() - 64));
         } while(canNotPlacePlayer(map.getEnemies(), map.getObstacles()));
+        root.getChildren().removeAll(player.getActiveGun().getView());
+        player.setGunIndex(0);
+        player.setGuns(new ArrayList<>());
+        player.addGun(new Pistol("Pistol", "images/gun.png", player, 7));
+        root.getChildren().add(player.getActiveGun().getView());
+        player.rotateDown();
     }
 
     public void shoot() {
@@ -324,17 +359,21 @@ public class GameManager {
 
         for(StaticGameObject grass: map.getGrass())
             root.getChildren().removeAll(grass.getView());
+
+        for(Gun gun : map.getGuns())
+            root.getChildren().removeAll(gun.getView());
     }
 
-    public void initPlayer() {
+    public void createPlayer() {
         Random random = new Random();
         player = new HumanPlayer("hrac1", 0);
         player.setImage("images/player.png");
-        player.addGun(new Gun("Pistol", "images/gun-up.png", player, 7));
+        player.addGun(new Pistol("Pistol", "images/gun.png", player, 7));
 
         do {
             player.setPosition(random.nextInt(map.getWidth() - 64), random.nextInt(map.getHeight() - 64));
         } while(canNotPlacePlayer(map.getEnemies(), map.getObstacles()));
+        player.rotateDown();
 
         System.out.println(player.toString());
 
@@ -342,7 +381,7 @@ public class GameManager {
         root.getChildren().add(player.getActiveGun().getView());
     }
 
-    public ArrayList<RandomPlayer> initRandomPlayers(int count) {
+    public ArrayList<RandomPlayer> createRandomPlayers(int count) {
         Random random = new Random();
         ArrayList<RandomPlayer> enemies = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -365,12 +404,12 @@ public class GameManager {
     public RandomPlayer createRandomPlayer(int index) {
         RandomPlayer bot = new RandomPlayer("bot_" + index, 0);
         bot.setImage("images/player_bot.png");
-        bot.addGun(new Gun("Pistol", "images/gun-up.png", bot, 100));
+        bot.addGun(new Pistol("Pistol", "images/gun.png", bot, 100));
 
         return bot;
     }
 
-    public ArrayList<StaticGameObject> initStaticGameObjects(int count, String[] files, int[] angles) {
+    public ArrayList<StaticGameObject> createStaticGameObjects(int count, String[] files) {
 
         ArrayList<StaticGameObject> obstacles = new ArrayList<>();
         Random random = new Random();
@@ -380,7 +419,6 @@ public class GameManager {
             do {
                 obstacles.get(i).setPosition(random.nextInt(map.getWidth() - 64), random.nextInt(map.getHeight() - 64));
             } while(canNotPlaceObstacle(obstacles));
-            obstacles.get(i).getView().setRotate(angles[random.nextInt(angles.length)]);
 
             root.getChildren().add(obstacles.get(i).getView());
         }
@@ -411,6 +449,19 @@ public class GameManager {
                 return true;
         for (StaticGameObject obstacle : obstacles)
             if (obstacle.isColliding(player))
+                return true;
+        return false;
+    }
+
+    public boolean canNotPlaceGun(ArrayList<RandomPlayer> enemies, ArrayList<StaticGameObject> obstacles, ArrayList<Gun> guns) {
+        for(RandomPlayer enemy : enemies)
+            if(enemy.isColliding(guns.get(guns.size() - 1)))
+                return true;
+        for (StaticGameObject obstacle : obstacles)
+            if (obstacle.isColliding(guns.get(guns.size() - 1)))
+                return true;
+        for(int i = 0; i < guns.size() - 1; i++)
+            if(guns.get(i).isColliding(guns.get(guns.size() - 1)))
                 return true;
         return false;
     }

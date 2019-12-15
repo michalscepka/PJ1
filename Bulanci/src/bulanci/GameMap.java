@@ -13,7 +13,9 @@ public class GameMap {
     private ArrayList<StaticGameObject> obstacles;
     private ArrayList<RandomPlayer> enemies;
     private ArrayList<StaticGameObject> grass;
-    private boolean spawned = false;
+    private ArrayList<Gun> guns;
+    private boolean spawnedEnemies = false;
+    private boolean spawnedGuns = false;
     private int enemiesCount;
 
     public GameMap(int width, int height, int enemiesCount) {
@@ -50,6 +52,10 @@ public class GameMap {
         this.grass = grass;
     }
 
+    public void setGuns(ArrayList<Gun> guns) {
+        this.guns = guns;
+    }
+
     public ArrayList<RandomPlayer> getEnemies() {
         return enemies;
     }
@@ -62,27 +68,55 @@ public class GameMap {
         return grass;
     }
 
+    public ArrayList<Gun> getGuns() {
+        return guns;
+    }
+
     public void spawnEnemy(GameManager gameManager, double time, Pane root) {
-        int index = (int)((time % (2 * 4)) / 4);
+        int index = (int)(time % (7));
 
         if(index != 1)
-            spawned = false;
+            spawnedEnemies = false;
 
-        Random random = new Random();
-
-        if(enemies.size() < enemiesCount && index == 1 && !spawned) {
+        if(enemies.size() < enemiesCount && index == 1 && !spawnedEnemies) {
+            Random random = new Random();
             while (enemies.size() < enemiesCount) {
                 enemies.add(gameManager.createRandomPlayer(enemiesCounter++));
                 do {
                     enemies.get(enemies.size() - 1).setPosition(
                             random.nextInt(getWidth() - (int)enemies.get(enemies.size() - 1).getWidth()),
                             random.nextInt(getHeight() - (int)enemies.get(enemies.size() - 1).getHeight()));
-                } while(gameManager.canNotPlaceEnemy(enemies, getObstacles()));
+                } while(gameManager.canNotPlaceEnemy(enemies, obstacles));
 
                 root.getChildren().add(enemies.get(enemies.size() - 1).getView());
                 root.getChildren().add(enemies.get(enemies.size() - 1).getActiveGun().getView());
             }
-            spawned = true;
+            spawnedEnemies = true;
+        }
+    }
+
+    public void spawnGuns(GameManager gameManager, double time, Pane root) {
+        int index = (int)(time % (10));
+
+        if(index != 1)
+            spawnedGuns = false;
+
+        if(index == 1 && !spawnedGuns) {
+            Random random = new Random();
+            //Gun[] newGuns = new Gun[]{new Shotgun("Shotgun", "images/shotgun.png", 4), new AssaultRifle("AR", "images/ar.png", 15)};
+            Gun[] newGuns = new Gun[]{new Shotgun("Shotgun", "images/shotgun.png", 4)};
+
+            guns.add(newGuns[random.nextInt(newGuns.length)]);
+            do {
+                guns.get(guns.size() - 1).setPosition(
+                        random.nextInt(getWidth() - (int)guns.get(guns.size() - 1).getWidth()),
+                        random.nextInt(getHeight() - (int)guns.get(guns.size() - 1).getHeight()));
+            } while(gameManager.canNotPlaceGun(enemies, obstacles, guns));
+
+            guns.get(guns.size() - 1).getView().setRotate(90);
+            root.getChildren().add(guns.get(guns.size() - 1).getView());
+
+            spawnedGuns = true;
         }
     }
 }

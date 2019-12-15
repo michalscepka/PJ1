@@ -26,7 +26,7 @@ public class Main extends Application {
 
         GameManager gameManager = new GameManager(new GameMap((int)canvas.getWidth(), (int)canvas.getHeight() - 25, 4), root, canvas.getGraphicsContext2D());
         gameManager.initUI(scene, canvas);
-        gameManager.starGame(scene, canvas);
+        gameManager.starGame(canvas);
 
         ArrayList<String> input = new ArrayList<>();
 
@@ -38,6 +38,8 @@ public class Main extends Application {
                 input.add(code);
             else if (e.getCode() == KeyCode.R)
                 gameManager.respawnPlayer();
+            else if (e.getCode() == KeyCode.C)
+                gameManager.getPlayer().changeGun();
         });
 
         scene.setOnKeyReleased(e -> {

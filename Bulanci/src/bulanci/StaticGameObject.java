@@ -6,12 +6,10 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 
 public class StaticGameObject {
 
     private Rectangle view;
-    private ArrayList<Image> images;
     private String name;
     protected DecimalFormat numberFormat = new DecimalFormat("#0.00");
 
@@ -42,14 +40,6 @@ public class StaticGameObject {
 
     public void setImage(String filename) {
         setImage(new Image(filename));
-    }
-
-    public void setImages(ArrayList<Image> images) {
-        this.images = images;
-    }
-
-    public Image getImage(int index) {
-        return images.get(index);
     }
 
     public String getName() {

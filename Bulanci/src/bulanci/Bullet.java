@@ -7,7 +7,6 @@ public class Bullet extends GameObject {
     }
 
     public boolean isOutOfBounds() {
-        //TODO prepsat na dynamickou velikost mapy
         return (getView().getTranslateX() < 0) || (getView().getTranslateX() > 800) || (getView().getTranslateY() < 0) || (getView().getTranslateY() > 600);
     }
 }

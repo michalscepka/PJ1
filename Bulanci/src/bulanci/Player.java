@@ -28,28 +28,65 @@ public abstract class Player extends GameObject {
         this.direction = direction;
     }
 
-    public void addGun(Gun gun) {
+    public void setGuns(ArrayList<Gun> guns) {
+        this.guns = guns;
+    }
+
+    public boolean addGun(Gun gun) {
+        if (!guns.isEmpty()) {
+            for (int i = 1; i < guns.size(); i++) {
+                if (guns.get(i).getName().equals(gun.getName())) {
+                    guns.get(i).ammo = guns.get(i).getDefaultAmmo();
+                    return false;
+                }
+            }
+            gun.setOwner(this);
+        }
         guns.add(gun);
+        return true;
     }
 
     public Gun getActiveGun() {
         return guns.get(gunIndex);
     }
 
-    public ArrayList<Gun> getGuns() {
-        return guns;
-    }
-
     public int getDirection() {
         return direction;
     }
 
-    public void setDirection(int direction) {
-        this.direction = direction;
-    }
-
     public int getSpeed() {
         return speed;
+    }
+
+    public void setGunIndex(int gunIndex) {
+        this.gunIndex = gunIndex;
+    }
+
+    public void changeGun() {
+        getActiveGun().getView().setVisible(false);
+
+        gunIndex = ++gunIndex % guns.size();
+        System.out.println(gunIndex);
+
+        getActiveGun().getView().setVisible(true);
+        placeGunByDirection();
+    }
+
+    private void placeGunByDirection() {
+        switch (direction) {
+            case 0:
+                rotateUp();
+                break;
+            case 1:
+                rotateDown();
+                break;
+            case 2:
+                rotateLeft();
+                break;
+            case 3:
+                rotateRight();
+                break;
+        }
     }
 
     public void enableMoveDirections() {
@@ -96,67 +133,63 @@ public abstract class Player extends GameObject {
     }
 
     public void moveUp() {
-        rotateUp();
+        if(direction != 0)
+            rotateUp();
         if(!isOutOnTop() && canMoveUp) {
             addVelocity(0, -speed);
         }
     }
 
     public void moveDown() {
-        rotateDown();
+        if(direction != 1)
+            rotateDown();
         if(!isOutOnBot() && canMoveDown) {
             addVelocity(0, speed);
         }
     }
 
     public void moveLeft() {
-        rotateLeft();
+        if(direction != 2)
+            rotateLeft();
         if(!isOutOnLeft() && canMoveLeft) {
             addVelocity(-speed, 0);
         }
     }
 
     public void moveRight() {
-        rotateRight();
+        if(direction != 3)
+            rotateRight();
         if(!isOutOnRight() && canMoveRight) {
             addVelocity(speed, 0);
         }
     }
 
-    private void rotateUp() {
-        if(direction != 0) {
+    public void rotateUp() {
             direction = 0;
             getView().setRotate(180);
             getActiveGun().getView().setRotate(180);
             getActiveGun().setPosition(getPosition().getX() + 10, getPosition().getY() - getActiveGun().getHeight());
-        }
     }
 
-    private void rotateDown() {
-        if(direction != 1) {
+    public void rotateDown() {
             direction = 1;
             getView().setRotate(0);
             getActiveGun().getView().setRotate(0);
             getActiveGun().setPosition(getPosition().getX() + getWidth() - 10 * 2, getPosition().getY() + getHeight());
-        }
     }
 
-    private void rotateLeft() {
-        if (direction != 2) {
+    public void rotateLeft() {
             direction = 2;
             getView().setRotate(90);
             getActiveGun().getView().setRotate(90);
             getActiveGun().setPosition(getPosition().getX() - getActiveGun().getWidth(), getPosition().getY() + getHeight() - 10 * 2);
-        }
     }
 
-    private void rotateRight() {
-        if(direction != 3) {
+    public void rotateRight() {
             direction = 3;
             getView().setRotate(270);
             getActiveGun().getView().setRotate(270);
             getActiveGun().setPosition(getPosition().getX() + getWidth(), getPosition().getY() + 10);
-        }
     }
 
     public boolean isOutOnTop() {
@@ -164,7 +197,6 @@ public abstract class Player extends GameObject {
     }
 
     public boolean isOutOnBot() {
-        //TODO prepsat na dynamickou velikost mapy
         return getPosition().getY() > 600 - getHeight();
     }
 
@@ -173,7 +205,6 @@ public abstract class Player extends GameObject {
     }
 
     public boolean isOutOnRight() {
-        //TODO prepsat na dynamickou velikost mapy
         return getPosition().getX() > 800 - getWidth();
     }
 

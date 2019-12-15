@@ -5,16 +5,17 @@ import javafx.scene.layout.Pane;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Gun extends GameObject {
+public abstract class Gun extends GameObject {
 
-    private ArrayList<Bullet> bullets = new ArrayList<>();
-    private Player owner;
     private int defaultAmmo;
-    private int ammo;
     private double reloadStartTime = -1;
 
+    protected ArrayList<Bullet> bullets = new ArrayList<>();
+    protected Player owner;
+    protected int ammo;
+
     public Gun(String name, String filename, int defaultAmmo) {
-        super(filename, name);
+        super(name, filename);
         this.defaultAmmo = defaultAmmo;
         ammo = defaultAmmo;
     }
@@ -32,6 +33,10 @@ public class Gun extends GameObject {
 
     public int getAmmo() {
         return ammo;
+    }
+
+    public int getDefaultAmmo() {
+        return defaultAmmo;
     }
 
     public ArrayList<Bullet> getBullets() {
