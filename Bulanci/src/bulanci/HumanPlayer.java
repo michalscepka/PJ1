@@ -7,8 +7,8 @@ public class HumanPlayer extends Player implements Serializable, Comparable<Huma
     private int score = 0;
     private int deaths = 0;
 
-    public HumanPlayer(String name, GameMap map, int direction) {
-        super(name, map, direction);
+    public HumanPlayer(String name, int direction) {
+        super(name, direction);
     }
 
     public HumanPlayer(String name, int score, int deaths) {

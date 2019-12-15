@@ -12,6 +12,7 @@ public class GameMap {
     private int height;
     private ArrayList<StaticGameObject> obstacles;
     private ArrayList<RandomPlayer> enemies;
+    private ArrayList<StaticGameObject> grass;
     private boolean spawned = false;
     private int enemiesCount;
 
@@ -45,6 +46,10 @@ public class GameMap {
         this.enemies = enemies;
     }
 
+    public void setGrass(ArrayList<StaticGameObject> grass) {
+        this.grass = grass;
+    }
+
     public ArrayList<RandomPlayer> getEnemies() {
         return enemies;
     }
@@ -53,18 +58,21 @@ public class GameMap {
         return obstacles;
     }
 
-    public void spawnEnemy(double time, Pane root) {
+    public ArrayList<StaticGameObject> getGrass() {
+        return grass;
+    }
+
+    public void spawnEnemy(GameManager gameManager, double time, Pane root) {
         int index = (int)((time % (2 * 4)) / 4);
 
         if(index != 1)
             spawned = false;
 
-        GameManager gameManager = new GameManager();
         Random random = new Random();
 
         if(enemies.size() < enemiesCount && index == 1 && !spawned) {
             while (enemies.size() < enemiesCount) {
-                enemies.add(gameManager.createRandomPlayer(this, enemiesCounter++));
+                enemies.add(gameManager.createRandomPlayer(enemiesCounter++));
                 do {
                     enemies.get(enemies.size() - 1).setPosition(
                             random.nextInt(getWidth() - (int)enemies.get(enemies.size() - 1).getWidth()),
@@ -74,7 +82,6 @@ public class GameMap {
                 root.getChildren().add(enemies.get(enemies.size() - 1).getView());
                 root.getChildren().add(enemies.get(enemies.size() - 1).getActiveGun().getView());
             }
-
             spawned = true;
         }
     }

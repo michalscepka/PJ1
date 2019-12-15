@@ -10,8 +10,8 @@ public class RandomPlayer extends Player {
     private int newDirection;
     private double shootTime = -1;
 
-    public RandomPlayer(String name, GameMap map, int direction) {
-        super(name, map, direction);
+    public RandomPlayer(String name, int direction) {
+        super(name, direction);
     }
 
     public void makeMove(double time) {

@@ -12,7 +12,6 @@ public abstract class Player extends GameObject {
     //up    down    left    right
     //0     1       2       3
     private int direction;
-    private GameMap map;
     private boolean canMoveUp = true;
     private boolean canMoveDown = true;
     private boolean canMoveLeft = true;
@@ -22,12 +21,11 @@ public abstract class Player extends GameObject {
         super(name);
     }
 
-    public Player(String name, GameMap map, int direction) {
+    public Player(String name, int direction) {
         super(name);
         gunIndex = 0;
         speed = 200;
         this.direction = direction;
-        this.map = map;
     }
 
     public void addGun(Gun gun) {
@@ -166,7 +164,8 @@ public abstract class Player extends GameObject {
     }
 
     public boolean isOutOnBot() {
-        return getPosition().getY() > map.getHeight() - getHeight();
+        //TODO prepsat na dynamickou velikost mapy
+        return getPosition().getY() > 600 - getHeight();
     }
 
     public boolean isOutOnLeft() {
@@ -174,7 +173,8 @@ public abstract class Player extends GameObject {
     }
 
     public boolean isOutOnRight() {
-        return getPosition().getX() > map.getWidth() - getWidth();
+        //TODO prepsat na dynamickou velikost mapy
+        return getPosition().getX() > 800 - getWidth();
     }
 
     @Override

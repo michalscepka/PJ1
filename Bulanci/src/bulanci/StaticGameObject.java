@@ -8,7 +8,7 @@ import javafx.scene.shape.Rectangle;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-public abstract class StaticGameObject {
+public class StaticGameObject {
 
     private Rectangle view;
     private ArrayList<Image> images;
