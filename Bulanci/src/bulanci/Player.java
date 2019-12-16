@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public abstract class Player extends GameObject {
 
     private ArrayList<Gun> guns = new ArrayList<>();
-    private int gunIndex;
+    private int activeGun;
     private int speed;
     //up    down    left    right
     //0     1       2       3
@@ -23,7 +23,7 @@ public abstract class Player extends GameObject {
 
     public Player(String name, int direction) {
         super(name);
-        gunIndex = 0;
+        activeGun = 0;
         speed = 200;
         this.direction = direction;
     }
@@ -47,7 +47,7 @@ public abstract class Player extends GameObject {
     }
 
     public Gun getActiveGun() {
-        return guns.get(gunIndex);
+        return guns.get(activeGun);
     }
 
     public int getDirection() {
@@ -58,15 +58,15 @@ public abstract class Player extends GameObject {
         return speed;
     }
 
-    public void setGunIndex(int gunIndex) {
-        this.gunIndex = gunIndex;
+    public void setActiveGun(int gunIndex) {
+        this.activeGun = gunIndex;
     }
 
     public void changeGun() {
         getActiveGun().getView().setVisible(false);
 
-        gunIndex = ++gunIndex % guns.size();
-        System.out.println(gunIndex);
+        activeGun = ++activeGun % guns.size();
+        //System.out.println(gunIndex);
 
         getActiveGun().getView().setVisible(true);
         placeGunByDirection();

@@ -112,7 +112,7 @@ public class GameManager {
         gc.fillRect(0, 600, canvas.getWidth(), 25);
 
         map.setGrass(createStaticGameObjects(30, new String[]{"images/grass1.png", "images/grass2.png", "images/grass3.png"}));
-        map.setObstacles(createStaticGameObjects(12, new String[]{"images/bush1.png", "images/bush2.png", "images/bush3.png", "images/rock.png"}));
+        map.setObstacles(createStaticGameObjects(10, new String[]{"images/bush1.png", "images/bush2.png", "images/bush3.png", "images/rock.png"}));
         map.setEnemies(createRandomPlayers(map.getEnemiesCount()));
         map.setGuns(new ArrayList<>());
         GameMap.setEnemiesCounter(map.getEnemies().size());
@@ -186,7 +186,7 @@ public class GameManager {
         }
     }
 
-    public void updatePlayers(double time) {
+    private void updatePlayers(double time) {
         player.update(time, root);
         for(RandomPlayer bot : map.getEnemies()) {
             bot.update(time, root);
@@ -208,7 +208,7 @@ public class GameManager {
             while(enemiesIterator.hasNext()) {
                 RandomPlayer enemy = enemiesIterator.next();
                 if (enemy.isColliding(bullet)) {
-                    System.out.println(bullet.toString());
+                    //System.out.println(bullet.toString());
                     root.getChildren().removeAll(bullet.getView());
                     root.getChildren().removeAll(enemy.getView());
                     root.getChildren().removeAll(enemy.getActiveGun().getView());
@@ -292,8 +292,10 @@ public class GameManager {
         do {
             player.setPosition(random.nextInt(map.getWidth() - 64), random.nextInt(map.getHeight() - 64));
         } while(canNotPlacePlayer(map.getEnemies(), map.getObstacles()));
+        for(Bullet bullet : player.getActiveGun().getBullets())
+            root.getChildren().removeAll(bullet.getView());
         root.getChildren().removeAll(player.getActiveGun().getView());
-        player.setGunIndex(0);
+        player.setActiveGun(0);
         player.setGuns(new ArrayList<>());
         player.addGun(new Pistol("Pistol", "images/gun.png", player, 7));
         root.getChildren().add(player.getActiveGun().getView());
@@ -305,7 +307,7 @@ public class GameManager {
         labelAmmo.setText("Ammo: " + player.getActiveGun().getAmmo());
     }
 
-    public void gameOver() throws IOException {
+    private void gameOver() throws IOException {
         gc.setFill(Color.BLACK);
         gc.fillRect(map.getWidth() / 3.0, map.getHeight() / 3.0, map.getWidth() / 3.0, map.getHeight() / 3.0);
         gc.setFill(Color.WHITE);
@@ -341,7 +343,7 @@ public class GameManager {
         gc.fillText(sb.toString(), 10, 20);
     }
 
-    public void clearGameObjects() {
+    private void clearGameObjects() {
         root.getChildren().remove(player.getView());
         root.getChildren().remove(player.getActiveGun().getView());
         for(Bullet bullet : player.getActiveGun().getBullets())
@@ -364,7 +366,7 @@ public class GameManager {
             root.getChildren().removeAll(gun.getView());
     }
 
-    public void createPlayer() {
+    private void createPlayer() {
         Random random = new Random();
         player = new HumanPlayer("hrac1", 0);
         player.setImage("images/player.png");
@@ -381,7 +383,7 @@ public class GameManager {
         root.getChildren().add(player.getActiveGun().getView());
     }
 
-    public ArrayList<RandomPlayer> createRandomPlayers(int count) {
+    private ArrayList<RandomPlayer> createRandomPlayers(int count) {
         Random random = new Random();
         ArrayList<RandomPlayer> enemies = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -409,7 +411,7 @@ public class GameManager {
         return bot;
     }
 
-    public ArrayList<StaticGameObject> createStaticGameObjects(int count, String[] files) {
+    private ArrayList<StaticGameObject> createStaticGameObjects(int count, String[] files) {
 
         ArrayList<StaticGameObject> obstacles = new ArrayList<>();
         Random random = new Random();
@@ -426,7 +428,7 @@ public class GameManager {
         return obstacles;
     }
 
-    public boolean canNotPlaceObstacle(ArrayList<StaticGameObject> obstacles) {
+    private boolean canNotPlaceObstacle(ArrayList<StaticGameObject> obstacles) {
         for(int i = 0; i < obstacles.size() - 1; i++)
             if(obstacles.get(i).isColliding(obstacles.get(obstacles.size() - 1)))
                 return true;
@@ -443,7 +445,7 @@ public class GameManager {
         return false;
     }
 
-    public boolean canNotPlacePlayer(ArrayList<RandomPlayer> enemies, ArrayList<StaticGameObject> obstacles) {
+    private boolean canNotPlacePlayer(ArrayList<RandomPlayer> enemies, ArrayList<StaticGameObject> obstacles) {
         for(RandomPlayer enemy : enemies)
             if(enemy.isColliding(player))
                 return true;
