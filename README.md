@@ -1,2 +1,2 @@
 # PJ1
-Java
+Programming Languages I (Java) - VŠB
